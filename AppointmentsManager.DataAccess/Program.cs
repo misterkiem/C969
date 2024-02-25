@@ -1,1 +1,4 @@
-﻿Console.WriteLine(); 
+﻿class Program
+{
+    static void Main() { }
+}
