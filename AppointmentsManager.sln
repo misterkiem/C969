@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppointmentsManager.DataAccess", "AppointmentsManager.DataAccess\AppointmentsManager.DataAccess.csproj", "{9250A635-4A61-4A0D-A9AA-CAB7CE478F44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppmointmentsManager.WpfApp", "AppmointmentsManager.WpfApp\AppmointmentsManager.WpfApp.csproj", "{A07CA7AD-DD86-46AF-840E-0F185A9832CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppointmentsManager.WpfApp", "AppmointmentsManager.WpfApp\AppointmentsManager.WpfApp.csproj", "{A07CA7AD-DD86-46AF-840E-0F185A9832CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
