@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppointmentsManager.DataAccess.Models
 {
+    [Table("user")]
     public class User
     {
         [Key]

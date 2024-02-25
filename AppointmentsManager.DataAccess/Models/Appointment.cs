@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppointmentsManager.DataAccess.Models
 {
+    [Table("appointment")]
     public class Appointment
     {
         [Key]
