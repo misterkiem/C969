@@ -9,12 +9,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <Compile Remove="Mvvm\Vms\**" />
+    <EmbeddedResource Remove="Mvvm\Vms\**" />
+    <None Remove="Mvvm\Vms\**" />
+    <Page Remove="Mvvm\Vms\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Core\" />
+    <Compile Include="Mvvm\Vms\ControlVms\AppointmentsControlVm.cs" />
+    <Compile Include="Mvvm\Vms\ControlVms\ControlVmBase.cs" />
+    <Compile Include="Mvvm\Vms\DtoVms\DtoVmBase.cs" />
+    <Compile Include="Mvvm\Vms\WindowVms\LoginWindowVm.cs" />
+    <Compile Include="Mvvm\Vms\WindowVms\MainWindowVm.cs" />
+    <Compile Include="Mvvm\Vms\ControlVms\UsersControlVm.cs" />
+    <Compile Include="Mvvm\Vms\DtoVms\UserVm.cs" />
+    <Compile Include="Mvvm\Vms\WindowVms\WindowVmBase.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
