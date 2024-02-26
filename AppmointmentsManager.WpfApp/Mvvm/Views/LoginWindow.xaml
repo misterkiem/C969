@@ -8,7 +8,8 @@
                   mc:Ignorable="d"
                   Title="LoginWindow"
                   SizeToContent="WidthAndHeight"
-                  d:DataContext="{d:DesignInstance Type=vm:LoginWindowVm, IsDesignTimeCreatable=True}">
+                  d:DataContext="{d:DesignInstance Type=vm:LoginWindowVm, IsDesignTimeCreatable=True}"
+                  WindowStartupLocation="CenterScreen">
     <StackPanel HorizontalAlignment="Center">
         <StackPanel.Resources>
             <Style TargetType="Label">
@@ -46,9 +47,9 @@
                 <Style TargetType="Label"
                        BasedOn="{StaticResource {x:Type Label}}">
                     <Setter Property="Visibility"
-                            Value="Visible" />
+                            Value="Collapsed" />
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding DisplayError}"
+                        <DataTrigger Binding="{Binding InvalidLogin}"
                                      Value="True">
                             <Setter Property="Visibility"
                                     Value="Visible" />

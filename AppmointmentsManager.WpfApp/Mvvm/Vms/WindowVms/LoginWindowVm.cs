@@ -1,17 +1,9 @@
-﻿using AppointmentsManager.DataAccess;
-using AppointmentsManager.WpfApp.Core;
-using AppointmentsManager.WpfApp.Mvvm.Views;
+﻿using AppointmentsManager.WpfApp.Core;
 using AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms;
 [ObservableObject]
@@ -62,7 +54,7 @@ public partial class LoginWindowVm : WindowVmBase
     {
         var user = data.Users.Where(u => u.userName == Username).FirstOrDefault();
         if (user is null || user.password != Password ) { InvalidLogin = true; return; }
-        windowManager.OpenMainWindow();
+        windowManager.OpenWindow(WindowType.LoginWindow);
         CloseAction?.Invoke();
     }
 

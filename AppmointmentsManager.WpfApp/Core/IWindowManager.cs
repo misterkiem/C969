@@ -2,5 +2,6 @@
 
 public interface IWindowManager
 {
-    void OpenMainWindow();
+    void OpenDialog(WindowType windowType);
+    void OpenWindow(WindowType windowType);
 }

@@ -5,19 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AppointmentsManager.WpfApp.Core;
 public static class ServiceExtensions
 {
-    public static void AddWindowFactory<TWindow>(this IServiceCollection services)
-        where TWindow : WindowBase
+    public static void AddFactory<T>(this IServiceCollection services)
+        where T : class
     {
-        services.AddTransient<TWindow>();
-        services.AddSingleton<Func<TWindow>>(x => () => x.GetService<TWindow>()!);
-        services.AddSingleton<IFactory<TWindow>, Factory<TWindow>>();
-    }
-
-    public static void AddVmFactory<TVm>(this IServiceCollection services)
-        where TVm : ControlVmBase
-    {
-        services.AddTransient<TVm>();
-        services.AddSingleton<Func<TVm>>(x => () => x.GetService<TVm>()!);
-        services.AddSingleton<IFactory<TVm>, Factory<TVm>>();
+        services.AddTransient<T>();
+        services.AddSingleton<Func<T>>(x => () => x.GetService<T>()!);
+        services.AddSingleton<IFactory<T>, Factory<T>>();
     }
 }

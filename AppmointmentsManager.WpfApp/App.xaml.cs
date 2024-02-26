@@ -39,9 +39,9 @@ namespace AppointmentsManager.WpfApp
             services.AddSingleton<IWindowManager, WindowManager>();
             services.AddTransient<LoginWindowVm>();
             services.AddTransient<LoginWindow>();
-            services.AddWindowFactory<MainWindow>();
-            services.AddVmFactory<UsersControlVm>();
-            services.AddVmFactory<AppointmentsControlVm>();
+            services.AddFactory<MainWindow>();
+            services.AddFactory<UsersControlVm>();
+            services.AddFactory<AppointmentsControlVm>();
         }
 
         protected override async void OnExit(ExitEventArgs e)

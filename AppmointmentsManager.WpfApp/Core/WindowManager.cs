@@ -1,19 +1,20 @@
 ﻿using AppointmentsManager.WpfApp.Mvvm.Views;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
+using System.Windows;
 
 namespace AppointmentsManager.WpfApp.Core;
 public class WindowManager : IWindowManager
 {
-    private IFactory<MainWindow> _mainWindowFactory;
+    readonly Dictionary<WindowType, Func<WindowBase>> factories = new() { };
 
-    public WindowManager(IFactory<MainWindow> mainWindowFactory)
+    public WindowManager(IFactory<MainWindow> mainWindowFactory, IFactory<LoginWindow> loginWindowFactory)
     {
-        _mainWindowFactory = mainWindowFactory;
+        factories.Add(WindowType.MainWindow, () => mainWindowFactory.Create());
+        factories.Add(WindowType.LoginWindow, () => loginWindowFactory.Create());
     }
 
-    public void OpenMainWindow() => _mainWindowFactory.Create().Show();
+
+    public void OpenWindow(WindowType windowType) => factories[windowType].Invoke().Show();
+
+    public void OpenDialog(WindowType windowType) => factories[windowType].Invoke().ShowDialog();
 }
