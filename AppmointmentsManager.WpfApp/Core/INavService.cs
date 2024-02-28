@@ -1,7 +1,8 @@
 ﻿namespace AppointmentsManager.WpfApp.Core;
 
-public interface IWindowManager
+public interface INavService
 {
     void OpenDialog(WindowType windowType);
+
     void OpenWindow(WindowType windowType);
 }

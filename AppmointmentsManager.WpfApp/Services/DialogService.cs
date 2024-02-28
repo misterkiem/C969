@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 
 namespace AppointmentsManager.WpfApp.Services;
+
 public class DialogService : IDialogService
 {
     public void ShowMessage(string message, string title) => MessageBox.Show(message, title);
