@@ -6,16 +6,18 @@ using CommunityToolkit.Mvvm.Input;
 using System.Globalization;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms;
+
 [ObservableObject]
 public partial class LoginWindowVm : WindowVmBase
 {
     private readonly IDataService data = null!;
-    private readonly IWindowManager windowManager = null!;
+
+    private readonly INavService windowManager = null!;
 
     [Obsolete("Design Time Only", true)]
     public LoginWindowVm() { }
 
-    public LoginWindowVm(IDataService _data, IWindowManager _windowManager)
+    public LoginWindowVm(IDataService _data, INavService _windowManager)
     {
         data = _data;
         windowManager = _windowManager;
@@ -23,38 +25,37 @@ public partial class LoginWindowVm : WindowVmBase
     }
 
     [ObservableProperty]
-    string? username;
+    private string? username;
 
     [ObservableProperty]
-    string? password;
+    private string? password;
 
     [ObservableProperty]
-    string usernameLabel = "Username";
+    private string usernameLabel = "Username";
 
     [ObservableProperty]
-    string passwordLabel = "Password";
+    private string passwordLabel = "Password";
 
     [ObservableProperty]
-    string message = "Please enter your username and password.";
+    private string message = "Please enter your username and password.";
 
     [ObservableProperty]
-    string loginText = "Login";
+    private string loginText = "Login";
 
     [ObservableProperty]
-    string loginErrorText = "Invalid username and password combination.";
+    private string loginErrorText = "Invalid username and password combination.";
 
     [ObservableProperty]
-    bool invalidLogin = false;
+    private bool invalidLogin = false;
 
     bool NotEnglish => CultureInfo.CurrentCulture.TwoLetterISOLanguageName != "en";
-
 
     [RelayCommand]
     void Login()
     {
         var user = data.Users.Where(u => u.userName == Username).FirstOrDefault();
-        if (user is null || user.password != Password ) { InvalidLogin = true; return; }
-        windowManager.OpenWindow(WindowType.LoginWindow);
+        if (user is null || user.password != Password) { InvalidLogin = true; return; }
+        windowManager.OpenWindow(WindowType.MainWindow);
         CloseAction?.Invoke();
     }
 
@@ -66,5 +67,4 @@ public partial class LoginWindowVm : WindowVmBase
         LoginErrorText = "Combinación de nombre de usuario y contraseña no válida.";
         LoginText = "Acceso";
     }
-
 }

@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
+﻿using AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Views
 {

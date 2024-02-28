@@ -2,6 +2,7 @@
 using System.Windows;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Views;
+
 public class WindowBase : Window
 {
     public WindowBase(WindowVmBase vm)

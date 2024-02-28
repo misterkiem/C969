@@ -6,7 +6,8 @@ namespace AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
 
 public class MainWindowVm : WindowVmBase
 {
-    IDataService _dataService;
+    private IDataService _dataService;
+
     public MainWindowVm(IDataService dataService) { _dataService = dataService; }
 
     public ObservableCollection<Appointment> Appointments => _dataService.Appointments;
