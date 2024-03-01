@@ -1,19 +1,19 @@
-﻿using AppointmentsManager.DataAccess.Models;
+﻿using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 using System.Collections.ObjectModel;
 
 namespace AppointmentsManager.WpfApp.Services;
 
 public interface IDataService
 {
-    ObservableCollection<Address> Addresses { get; }
+    ObservableCollection<AddressVm> Addresses { get; }
 
-    ObservableCollection<Appointment> Appointments { get; }
+    ObservableCollection<AppointmentVm> Appointments { get; }
 
-    ObservableCollection<City> Cities { get; }
+    ObservableCollection<CityVm> Cities { get; }
 
-    ObservableCollection<Country> Countries { get; }
+    ObservableCollection<CountryVm> Countries { get; }
 
-    ObservableCollection<Customer> Customers { get; }
+    ObservableCollection<CustomerVm> Customers { get; }
 
-    ObservableCollection<User> Users { get; }
+    ObservableCollection<UserVm> Users { get; }
 }
