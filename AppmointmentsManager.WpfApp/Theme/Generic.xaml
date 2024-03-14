@@ -4,5 +4,20 @@
         <Setter Property="Background"
                 Value="#DDDD" />
     </Style>
-    
+
+    <ControlTemplate x:Key="HorizontalInputLabelTemplate"
+                     TargetType="{x:Type ContentControl}">
+        <DockPanel>
+            <TextBlock DockPanel.Dock="Left"
+                       VerticalAlignment="Center"
+                       Margin="10"
+                       Text="{TemplateBinding Tag}" />
+            <TextBox VerticalAlignment="Stretch"
+                     VerticalContentAlignment="Center"
+                     Margin="0, 5, 5, 5"
+                     Text="{TemplateBinding Content}"
+                     IsReadOnly="{TemplateBinding IsEnabled }"/>
+        </DockPanel>
+    </ControlTemplate>
+
 </ResourceDictionary>

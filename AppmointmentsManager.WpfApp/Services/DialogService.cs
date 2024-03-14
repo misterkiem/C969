@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Text;
+using System.Windows;
 
 namespace AppointmentsManager.WpfApp.Services;
 
@@ -11,5 +12,15 @@ public class DialogService : IDialogService
         var result = MessageBox.Show(message, title, MessageBoxButton.OKCancel);
         if (result == MessageBoxResult.OK) return true;
         return false;
+    }
+
+    public void ShowExceptionMessage(string message, string title, Exception ex)
+    {
+        var builder = new StringBuilder();
+        var innerException = ex.InnerException;
+        builder.AppendLine(message);
+        builder.AppendLine($"Exception: {ex.Message}");
+        if (innerException is not null) builder.AppendLine($"Inner Exception: {innerException.Message}");
+        ShowMessage(builder.ToString(), title);
     }
 }

@@ -1,0 +1,116 @@
+﻿<UserControl x:Class="AppointmentsManager.WpfApp.Mvvm.Views.CustomerCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:dvm="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms"
+             xmlns:local="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="140"
+             d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance Type=dvm:CustomerCardVm}">
+    <UserControl.Resources>
+
+    </UserControl.Resources>
+    <Grid>
+        <Grid>
+            <Grid.Resources>
+                <Style TargetType="ComboBox"
+                       BasedOn="{StaticResource ValidationTooltipStyle}">
+                    <Setter Property="VerticalContentAlignment"
+                            Value="Center" />
+                    <Setter Property="Margin"
+                            Value="8" />
+                    <Setter Property="Padding"
+                            Value="8" />
+                    <Setter Property="FontSize"
+                            Value="14" />
+                </Style>
+                <Style TargetType="local:CaptionTextbox" 
+                       BasedOn="{StaticResource {x:Type local:CaptionTextbox}}">
+                    <Setter Property="VerticalContentAlignment"
+                            Value="Center" />
+                    <Setter Property="FontSize"
+                            Value="14" />
+                    <Setter Property="IsEnabled"
+                            Value="True" />
+                </Style>
+            </Grid.Resources>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <local:CaptionTextbox Caption="Id:"
+                                      Text="{Binding Id}"
+                                      d:Text="10"
+                                      IsEnabled="False" />
+                <local:CaptionTextbox Grid.Column="1"
+                                      Caption="Name:"
+                                      Text="{Binding Name}">
+                </local:CaptionTextbox>
+                <TextBlock Grid.Column="2"
+                           Text="City:"
+                           Margin="10"
+                           VerticalAlignment="Center" />
+                <ComboBox Grid.Column="3"
+                          ItemsSource="{Binding Cities}"
+                          SelectedItem="{Binding City}"
+                          DisplayMemberPath="city" />
+                <TextBlock Grid.Column="4"
+                           Text="Country:"
+                           Margin="10"
+                           VerticalAlignment="Center" />
+                <ComboBox Grid.Column="5"
+                          ItemsSource="{Binding Countries}"
+                          SelectedItem="{Binding Country}"
+                          DisplayMemberPath="country" />
+                <local:CaptionTextbox Grid.Row="1"
+                                      Grid.ColumnSpan="3"
+                                      Caption="Address: "
+                                      Text="{Binding Address}"
+                                      d:Text="Placeholder" />
+                <local:CaptionTextbox Grid.Row="1"
+                                      Grid.Column="3"
+                                      Grid.ColumnSpan="1"
+                                      Caption="Address 2: "
+                                      Text="{Binding Address2}"
+                                      d:Text="Placeholder" />
+                <local:CaptionTextbox Grid.Row="1"
+                                      Grid.Column="4"
+                                      Grid.ColumnSpan="2"
+                                      Caption="Phone:"
+                                      Text="{Binding Phone}"
+                                      d:Text="Placeholder" />
+                <Grid Grid.Row="2"
+                      Grid.ColumnSpan="6"
+                      Height="40">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <UniformGrid Grid.Column="1"
+                                 Rows="1">
+                        <Button Content="Save Customer"
+                                Margin="20, 5"
+                                Command="{Binding SaveCustomerCommand}" />
+                        <Button Content="Delete Customer"
+                                Margin="20, 5"
+                                Command="{Binding DeleteCustomerCommand}" />
+
+                    </UniformGrid>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

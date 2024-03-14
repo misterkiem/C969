@@ -16,13 +16,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Mvvm\Vms\ControlVms\AppointmentCardVm.cs" />
     <Compile Include="Mvvm\Vms\ControlVms\AppointmentsControlVm.cs" />
     <Compile Include="Mvvm\Vms\ControlVms\ControlVmBase.cs" />
+    <Compile Include="Mvvm\Vms\DtoVms\CustomerCardVm.cs" />
+    <Compile Include="Mvvm\Vms\ControlVms\CustomerManagerControlVm.cs" />
+    <Compile Include="Mvvm\Vms\DtoVms\AppointmentDtoVm.cs" />
     <Compile Include="Mvvm\Vms\DtoVms\DtoVmBase.cs" />
     <Compile Include="Mvvm\Vms\WindowVms\LoginWindowVm.cs" />
     <Compile Include="Mvvm\Vms\WindowVms\MainWindowVm.cs" />
     <Compile Include="Mvvm\Vms\ControlVms\UsersControlVm.cs" />
-    <Compile Include="Mvvm\Vms\DtoVms\UserVm.cs" />
     <Compile Include="Mvvm\Vms\WindowVms\WindowVmBase.cs" />
   </ItemGroup>
 

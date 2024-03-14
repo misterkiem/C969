@@ -1,17 +1,63 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections;
-using System.ComponentModel;
-using System.Windows.Data;
+﻿using AppointmentsManager.DataAccess.Models;
+using AppointmentsManager.WpfApp.Services;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 
-public abstract partial class DtoVmBase : ObservableObject
+public abstract partial class DtoVmBase : ObservableValidator
 {
-    public int Id { get; set; }
+    protected readonly IDataService _data;
 
-    [ObservableProperty]
-    private ICollectionView? viewSource;
+    protected readonly IDialogService _dialog;
 
-    protected void SetView(IEnumerable objects)
-       => ViewSource = CollectionViewSource.GetDefaultView(objects);
+    protected string TypeName { get; set; } = null!;
+
+    public DtoVmBase(IDataService service, IDialogService dialog)
+    {
+        _data = service;
+        _dialog = dialog;
+    }
+
+    public abstract DbModel DbModel { get; }
+
+    public virtual IEnumerable<DbModel> DependentEntities { get; } = Enumerable.Empty<DbModel>();
+
+    public virtual void LoadEntity(DbModel entity) => TypeName = entity.GetType().Name;
+
+    public bool SaveToDb()
+    {
+        SaveEntity();
+        try
+        {
+            _data.SaveModel(DbModel, DependentEntities);
+            _dialog.ShowMessage($"Successfully saved {TypeName} to database.", "Save Successful");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _dialog.ShowExceptionMessage($"Unable to save {TypeName} to database.", "Database Error", ex);
+        }
+        return false;
+    }
+
+    public bool DeleteFromDb()
+    {
+        var result = _dialog.ShowConfirmMessage(
+            $"Are you sure you want to delete this {TypeName}?", $"Delete {TypeName}?");
+        if (!result) return false;
+        try
+        {
+            _data.DeleteModel(DbModel);
+            _dialog.ShowMessage($"Successfully deleted {TypeName} from db.", "Delete Successful");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _dialog.ShowExceptionMessage(
+                $"Unable to delete {TypeName} from database.", "Database Exception", ex);
+        }
+        return false;
+    }
+
+    protected abstract void SaveEntity();
 }

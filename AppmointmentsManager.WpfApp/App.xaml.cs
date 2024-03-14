@@ -4,7 +4,7 @@ using AppointmentsManager.WpfApp.Services;
 using AppointmentsManager.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using AppointmentsManager.WpfApp.Mvvm.Vms;
+using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 using AppointmentsManager.WpfApp.Mvvm.Views;
 using Microsoft.Extensions.Hosting;
 using AppointmentsManager.WpfApp.Core;
@@ -29,19 +29,25 @@ namespace AppointmentsManager.WpfApp
         void InitServices(IServiceCollection services)
         {
 
-            services.AddDbContext<AppointmentsDbContext>(opt =>
+            services.AddDbContextFactory<AppointmentsDbContext>(opt =>
             {
-                var con = Settings.Default.client_schedule;
-                opt.UseMySql(con, ServerVersion.AutoDetect(con));
-            });
+                var connectionString = Settings.Default.client_schedule;
+                opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            }, 
+            ServiceLifetime.Transient);
+
             services.AddSingleton<IDataService, DataService>();
+            services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<MainWindowVm>();
-            services.AddSingleton<IWindowManager, WindowManager>();
+            services.AddSingleton<INavService, NavService>();
             services.AddTransient<LoginWindowVm>();
-            services.AddTransient<LoginWindow>();
             services.AddFactory<MainWindow>();
+            services.AddFactory<LoginWindow>();
             services.AddFactory<UsersControlVm>();
-            services.AddFactory<AppointmentsControlVm>();
+            services.AddFactory<AppointmentManagerControlVm>();
+            services.AddFactory<CustomerManagerControlVm>();
+            services.AddCustomerCardVmFactory();
+            services.AddTransient<AppointmentManagerControl>();
         }
 
         protected override async void OnExit(ExitEventArgs e)

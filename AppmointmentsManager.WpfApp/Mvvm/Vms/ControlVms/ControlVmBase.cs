@@ -1,5 +1,7 @@
-﻿namespace AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-public class ControlVmBase
+namespace AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
+
+public class ControlVmBase : ObservableValidator
 {
 }

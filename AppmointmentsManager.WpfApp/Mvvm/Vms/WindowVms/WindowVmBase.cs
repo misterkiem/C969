@@ -1,6 +1,8 @@
-﻿namespace AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-public abstract class WindowVmBase
+namespace AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
+
+public abstract class WindowVmBase : ObservableObject
 {
     public Action? CloseAction { get; set; }
 }

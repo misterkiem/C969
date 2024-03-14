@@ -1,6 +1,5 @@
 ﻿using AppointmentsManager.DataAccess;
 using AppointmentsManager.DataAccess.Models;
-using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 
@@ -10,22 +9,75 @@ namespace AppointmentsManager.WpfApp.Services
     {
         private readonly IDbContextFactory<AppointmentsDbContext> _dbFactory;
 
-        public ObservableCollection<AppointmentVm> Appointments { get; private set; } = null!;
+        private ObservableCollection<Appointment> appointments = null!;
 
-        public ObservableCollection<CountryVm> Countries { get; private set; } = null!;
+        public ReadOnlyObservableCollection<Appointment> Appointments => new(appointments);
 
-        public ObservableCollection<UserVm> Users { get; private set; } = null!;
+        private ObservableCollection<Country> countries = null!;
 
-        public ObservableCollection<CustomerVm> Customers { get; private set; } = null!;
+        public ReadOnlyObservableCollection<Country> Countries => new(countries);
 
-        public ObservableCollection<AddressVm> Addresses { get; private set; } = null!;
+        private ObservableCollection<User> users = null!;
 
-        public ObservableCollection<CityVm> Cities { get; private set; } = null!;
+        public ReadOnlyObservableCollection<User> Users => new(users);
+
+        private ObservableCollection<Customer> customers = null!;
+
+        public ReadOnlyObservableCollection<Customer> Customers => new(customers);
+
+        private ObservableCollection<Address> addresses = null!;
+
+        public ReadOnlyObservableCollection<Address> Addresses => new(addresses);
+
+        private ObservableCollection<City> cities = null!;
+
+        public ReadOnlyObservableCollection<City> Cities => new(cities);
 
         public DataService(IDbContextFactory<AppointmentsDbContext> dbFactory)
         {
             _dbFactory = dbFactory;
             InitCollections();
+        }
+
+        public void SaveModel(DbModel model)
+        {
+            using var context = _dbFactory.CreateDbContext();
+            MarkModelForSave(model, context);
+            context.SaveChanges();
+        }
+
+        public void SaveModel(DbModel model, IEnumerable<DbModel> dependents)
+        {
+            if (dependents.Any(x => x is null)) throw
+                    new ArgumentException($"Missing data selections for this {model.GetType().Name}.");
+            using var context = _dbFactory.CreateDbContext();
+            MarkModelForSave(model, context);
+            foreach (DbModel dependentEntity in dependents) MarkModelForSave(dependentEntity, context);
+            context.SaveChanges();
+        }
+
+        public void DeleteModel(DbModel model)
+        {
+            if (model.Id == 0)
+            {
+                throw new ArgumentException("Customer has not been saved to database.");
+            }
+            using var context = _dbFactory.CreateDbContext();
+            context.Entry(model).State = EntityState.Deleted;
+            context.SaveChanges();
+        }
+
+        public bool CheckLogin(string username, string password)
+        {
+            var user = users.Where(u => u.userName == username).FirstOrDefault();
+            if (user is null || user.password != password) return false;
+            return true;
+        }
+
+        void MarkModelForSave(DbModel model, AppointmentsDbContext context)
+        {
+            context.Entry(model).State = model.Id == 0 ?
+                EntityState.Added : EntityState.Modified;
         }
 
         void InitCollections()
@@ -36,103 +88,18 @@ namespace AppointmentsManager.WpfApp.Services
                 .ThenInclude(c => c.Addresses)
                 .ThenInclude(c => c.Customers)
                 .ThenInclude(c => c.Appointments)
-                .ThenInclude(c => c.User)
+                .ThenInclude(a => a.User)
                 .ToArray();
 
-            Countries = new(db.Countries.Select(x => GetCountryVm(x)));
-            Cities = new(Countries.SelectMany(x => (x.Cities)));
-            Addresses = new(Cities.SelectMany(x => (x.Addresses)));
-            Customers = new(Addresses.SelectMany(x => (x.Customers)));
-            Appointments = new(Customers.SelectMany(x => (x.Appointments)));
-            Users = new(db.Users.Select(x => GetUserVm(x)));
-        }
-
-        CountryVm GetCountryVm(Country country)
-        {
-            var vm = new CountryVm()
-            {
-                Id = country.countryId,
-                Country = country.country
-            };
-            vm.Cities = new(country.Cities.Select(x => GetCityVm(x, vm)));
-            return vm;
-        }
-
-        CityVm GetCityVm(City city, CountryVm country)
-        {
-            var vm = new CityVm()
-            {
-                Id = city.cityId,
-                City = city.city,
-                Country = country
-            };
-            vm.Addresses = new(city.Addresses.Select(x => GetAddressVm(x, vm)));
-            return vm;
-        }
-
-        AddressVm GetAddressVm(Address address, CityVm city)
-        {
-            var vm = new AddressVm()
-            {
-                Id = address.addressId,
-                Address = address.address,
-                Address2 = address.address2,
-                PostalCode = address.postalCode,
-                PhoneNumber = address.phone,
-                City = city
-            };
-            vm.Customers = new(address.Customers.Select(x => GetCustomerVm(x, vm)));
-
-            return vm;
-        }
-
-        CustomerVm GetCustomerVm(Customer customer, AddressVm address)
-        {
-            var vm = new CustomerVm()
-            {
-                Id = customer.customerId,
-                CustomerName = customer.customerName,
-                Address = address
-            };
-            vm.Appointments = new(customer.Appointments.Select(x => GetAppointmentVm(x, vm)));
-
-            return vm;
-        }
-
-        AppointmentVm GetAppointmentVm(Appointment appointment, CustomerVm customer)
-        {
-            var vm = new AppointmentVm()
-            {
-                Id = appointment.appointmentId,
-                Description = appointment.description,
-                Location = appointment.location,
-                Contact = appointment.contact,
-                Type = appointment.type,
-                Url = appointment.url,
-                Start = appointment.start,
-                End = appointment.end,
-                Customer = customer
-            };
-            return vm;
-        }
-
-        UserVm GetUserVm(User user)
-        {
-            var vm = new UserVm()
-            {
-                Id = user.userId,
-                Username = user.userName,
-                Password = user.password
-            };
-            SetAppointmentsForUser(user, vm);
-            return vm;
-        }
-
-        void SetAppointmentsForUser(User user, UserVm userVm)
-        {
-            userVm.Appointments = new(Appointments
-                .Where(a => user.Appointments.Select(ua => ua.appointmentId)
-                    .Contains(a.Id)));
+            countries = new(dbCountries);
+            cities = new(countries.SelectMany(x => (x.Cities)));
+            addresses = new(cities.SelectMany(x => (x.Addresses)));
+            customers = new(addresses.SelectMany(x => (x.Customers)));
+            appointments = new(customers.SelectMany(x => (x.Appointments)));
+            var emptyUsers = db.Users.AsNoTracking().Include(u => u.Appointments).Where(u => u.Appointments.Count == 0).ToArray();
+            var aptUsers = appointments.Select(x => x.User).DistinctBy(u => u.userId);
+            users = new(aptUsers.Concat(emptyUsers));
+            db.Dispose();
         }
     }
 }
