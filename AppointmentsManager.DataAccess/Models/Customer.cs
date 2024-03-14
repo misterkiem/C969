@@ -10,6 +10,9 @@ public class Customer : DbModel
     [Column(TypeName = "INT(10)")]
     public int customerId { get; set; }
 
+    [NotMapped]
+    public override int Id => customerId;
+
     [Required]
     [Column(TypeName = "VARCHAR(45)")]
     public string customerName { get; set; }
@@ -19,20 +22,6 @@ public class Customer : DbModel
 
     [Column(TypeName = "TINYINT")]
     public byte active { get; set; }
-
-    [Column(TypeName = "DATETIME")]
-    public DateTime createDate { get; set; }
-
-    [Required]
-    [Column(TypeName = "VARCHAR(40)")]
-    public string createdBy { get; set; }
-
-    [Column(TypeName = "TIMESTAMP")]
-    public DateTime lastUpdate { get; set; }
-
-    [Required]
-    [Column(TypeName = "VARCHAR(40)")]
-    public string lastUpdateBy { get; set; }
 
     public Address Address { get; set; }
 

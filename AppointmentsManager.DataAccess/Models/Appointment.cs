@@ -10,13 +10,17 @@ public class Appointment : DbModel
     [Column(TypeName = "INT(10)")]
     public int appointmentId { get; set; }
 
-    [Column(TypeName = "INT(10)")]
+    [NotMapped]
+    public override int Id => appointmentId;
 
+    [Column(TypeName = "INT(10)")]
     public int customerId { get; set; }
+
     public Customer Customer { get; set; }
 
     [Column(TypeName = "INT")]
     public int userId { get; set; }
+
     public User User { get; set; }
 
     [Required]
@@ -48,18 +52,4 @@ public class Appointment : DbModel
 
     [Column(TypeName = "DATETIME")]
     public DateTime end { get; set; }
-
-    [Column(TypeName = "DATETIME")]
-    public DateTime createDate { get; set; }
-
-    [Required]
-    [Column(TypeName = "VARCHAR(40)")]
-    public string createdBy { get; set; }
-
-    [Column(TypeName = "TIMESTAMP")]
-    public DateTime lastUpdate { get; set; }
-
-    [Required]
-    [Column(TypeName = "VARCHAR(40)")]
-    public string lastUpdateBy { get; set; }
 }

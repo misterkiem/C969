@@ -7,7 +7,7 @@ namespace AppointmentsManager.DataAccess;
 
 public class AppointmentsDbContext : DbContext
 {
-    public AppointmentsDbContext(DbContextOptions optionsBuilder) : base(optionsBuilder) { }
+    public AppointmentsDbContext(DbContextOptions<AppointmentsDbContext> optionsBuilder) : base(optionsBuilder) { }
     public DbSet<Address> Addresses { get; set; }
 
     public DbSet<Appointment> Appointments { get; set; }

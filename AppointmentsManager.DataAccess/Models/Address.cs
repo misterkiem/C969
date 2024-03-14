@@ -5,14 +5,17 @@ namespace AppointmentsManager.DataAccess.Models;
 
 [Table("address")]
 public class Address : DbModel
-{
+{ 
     [Key]
     [Column(TypeName = "INT(10)")]
     public int addressId { get; set; }
 
+    [NotMapped]
+    public override int Id => addressId;
+
     [Required]
     [Column(TypeName = "VARCHAR(50)")]
-    public string address { get; set; }
+    public string address { get; set; } = string.Empty;
 
     [Required]
     [Column(TypeName = "VARCHAR(50)")]
@@ -23,26 +26,11 @@ public class Address : DbModel
 
     [Required]
     [Column(TypeName = "VARCHAR(10)")]
-    public string postalCode { get; set; }
+    public string postalCode { get; set; } = string.Empty;
 
     [Required]
     [Column(TypeName = "VARCHAR(20)")]
-    public string phone { get; set; }
-
-
-    [Column(TypeName = "DATETIME")]
-    public DateTime createDate { get; set; }
-
-    [Required]
-    [Column(TypeName = "VARCHAR(40)")]
-    public string createdBy { get; set; }
-
-    [Column(TypeName = "TIMESTAMP")]
-    public DateTime lastUpdate { get; set; }
-
-    [Required]
-    [Column(TypeName = "VARCHAR(40)")]
-    public string lastUpdateBy { get; set; }
+    public string phone { get; set; } = string.Empty;
 
     public City City { get; set; }
 
