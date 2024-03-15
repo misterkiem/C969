@@ -4,6 +4,7 @@ using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -11,24 +12,30 @@ using System.Windows.Data;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
 
-public partial class CustomerManagerControlVm : ControlVmBase
+[ObservableRecipient]
+public partial class CustomerManagerControlVm : ControlVmBase, IRecipient<DeletedCustomerCardMessage>
 {
     private IDataService _data;
 
     private readonly IDialogService _dialogService;
 
-    private readonly ICustomerCardVmFactory _cardFac;
+    private readonly IDtoVmFactory<CustomerDtoVm> _customerVmFac;
 
-    public CustomerManagerControlVm(IDataService dataService, IDialogService dialogService, ICustomerCardVmFactory cardFac)
+    public CustomerManagerControlVm(IDataService dataService,
+        IDialogService dialogService,
+        IDtoVmFactory<CustomerDtoVm> cardFac,
+        IMessenger messenger)
     {
         _data = dataService;
         _dialogService = dialogService;
-        _cardFac = cardFac;
+        _customerVmFac = cardFac;
+        Messenger = messenger;
+        Messenger.RegisterAll(this);
         Countries = CollectionViewSource.GetDefaultView(_data.Countries);
         Cities = CollectionViewSource.GetDefaultView(_data.Cities);
         CustomerCards = new(_data.Customers.Select(x =>
         {
-            var cardVm = _cardFac.CreateFromExisting(x);
+            var cardVm = _customerVmFac.CreateFromExisting(x);
             cardVm.Cities = Cities;
             cardVm.Countries = Countries;
             return cardVm;
@@ -37,10 +44,10 @@ public partial class CustomerManagerControlVm : ControlVmBase
     }
 
     [ObservableProperty]
-    private ObservableCollection<CustomerCardVm> customerCards;
+    private ObservableCollection<CustomerDtoVm> customerCards;
 
     [ObservableProperty]
-    private CustomerCardVm? _selectedCustomerCard;
+    private CustomerDtoVm? _selectedCustomerCard;
 
     [ObservableProperty]
     private ICollectionView? _countries;
@@ -115,7 +122,7 @@ public partial class CustomerManagerControlVm : ControlVmBase
     [RelayCommand]
     void NewCustomer()
     {
-        var card = _cardFac.CreateEmpty();
+        var card = _customerVmFac.CreateEmpty();
         card.Cities = Cities;
         card.Countries = Countries;
         CustomerCards.Add(card);
@@ -142,14 +149,8 @@ public partial class CustomerManagerControlVm : ControlVmBase
         return ValidationResult.Success!;
     }
 
-    partial void OnSelectedCustomerCardChanged(CustomerCardVm? oldValue, CustomerCardVm? newValue)
+    public void Receive(DeletedCustomerCardMessage message)
     {
-        if (oldValue is not null) oldValue.CardDeleted -= OnCardDeleted;
-        if (newValue is not null) newValue.CardDeleted += OnCardDeleted;
-    }
-
-    private void OnCardDeleted(object? sender, EventArgs e)
-    {
-        CustomerCards.Remove((CustomerCardVm)sender!);
+        CustomerCards.Remove(message.Sender);
     }
 }

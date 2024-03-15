@@ -22,6 +22,8 @@ public abstract partial class DtoVmBase : ObservableValidator
 
     public virtual IEnumerable<DbModel> DependentEntities { get; } = Enumerable.Empty<DbModel>();
 
+    public abstract void InitEmpty();
+
     public virtual void LoadEntity(DbModel entity) => TypeName = entity.GetType().Name;
 
     public bool SaveToDb()

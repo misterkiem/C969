@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using AppointmentsManager.WpfApp.Core;
 using AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
 using AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace AppointmentsManager.WpfApp
 {
@@ -38,6 +39,7 @@ namespace AppointmentsManager.WpfApp
 
             services.AddSingleton<IDataService, DataService>();
             services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<IMessenger>((provider) => WeakReferenceMessenger.Default);
             services.AddSingleton<MainWindowVm>();
             services.AddSingleton<INavService, NavService>();
             services.AddTransient<LoginWindowVm>();
@@ -46,7 +48,8 @@ namespace AppointmentsManager.WpfApp
             services.AddFactory<UsersControlVm>();
             services.AddFactory<AppointmentManagerControlVm>();
             services.AddFactory<CustomerManagerControlVm>();
-            services.AddCustomerCardVmFactory();
+            services.AddDtoVmFactory<CustomerDtoVm>();
+            services.AddDtoVmFactory<AppointmentDtoVm>();
             services.AddTransient<AppointmentManagerControl>();
         }
 

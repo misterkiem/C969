@@ -1,13 +1,9 @@
 ﻿using AppointmentsManager.DataAccess.Models;
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
+
 public partial class AppointmentDtoVm : DtoVmBase
 {
     private Appointment _appointment = null!;
@@ -17,28 +13,39 @@ public partial class AppointmentDtoVm : DtoVmBase
     public AppointmentDtoVm(IDataService data, IDialogService dialog) : base(data, dialog) { }
 
     [ObservableProperty]
-    string? _title;
+    private string? _title;
 
     [ObservableProperty]
-    string? _description;
+    private string? _description;
 
     [ObservableProperty]
-    string? _location;
+    private string? _location;
 
     [ObservableProperty]
-    string? _contact;
+    private string? _contact;
 
     [ObservableProperty]
-    string? _type;
+    private string? _type;
 
     [ObservableProperty]
-    string? _url;
+    private string? _url;
 
     [ObservableProperty]
-    DateTime? _start;
+    private DateTime _start;
 
     [ObservableProperty]
-    DateTime? _end;
+    private DateTime _end;
+
+    [ObservableProperty]
+    private Customer? _customer;
+
+    [ObservableProperty]
+    private User? _user;
+
+    public override void InitEmpty()
+    {
+        _appointment = new();
+    }
 
     public override void LoadEntity(DbModel entity)
     {
@@ -51,7 +58,10 @@ public partial class AppointmentDtoVm : DtoVmBase
         Contact = _appointment.contact;
         Type = _appointment.type;
         Url = _appointment.url;
-
+        Start = TimeZoneInfo.ConvertTimeFromUtc(_appointment.start, TimeZoneInfo.Local);
+        End = TimeZoneInfo.ConvertTimeFromUtc(_appointment.end, TimeZoneInfo.Local);
+        Customer = _appointment.Customer;
+        User = _appointment.User;
     }
 
     protected override void SaveEntity()
@@ -62,5 +72,9 @@ public partial class AppointmentDtoVm : DtoVmBase
         _appointment.contact = Contact;
         _appointment.type = Type;
         _appointment.url = Url;
+        _appointment.start = TimeZoneInfo.ConvertTimeToUtc(Start);
+        _appointment.end = TimeZoneInfo.ConvertTimeToUtc(End);
+        _appointment.Customer = Customer;
+        _appointment.User = User;
     }
 }

@@ -16,10 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Mvvm\Vms\ControlVms\AppointmentCardVm.cs" />
-    <Compile Include="Mvvm\Vms\ControlVms\AppointmentsControlVm.cs" />
+    <Compile Include="Mvvm\Vms\ControlVms\AppointmentsManagerControlVm.cs" />
     <Compile Include="Mvvm\Vms\ControlVms\ControlVmBase.cs" />
-    <Compile Include="Mvvm\Vms\DtoVms\CustomerCardVm.cs" />
+    <Compile Include="Mvvm\Vms\DtoVms\CustomerDtoVm.cs" />
     <Compile Include="Mvvm\Vms\ControlVms\CustomerManagerControlVm.cs" />
     <Compile Include="Mvvm\Vms\DtoVms\AppointmentDtoVm.cs" />
     <Compile Include="Mvvm\Vms\DtoVms\DtoVmBase.cs" />

@@ -2,13 +2,15 @@
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 
-public partial class CustomerCardVm : DtoVmBase
+[ObservableRecipient]
+public partial class CustomerDtoVm : DtoVmBase
 {
     private static string _invalidPhoneMessage =
         @"Invalid phone format. Valid phone formats:
@@ -27,7 +29,7 @@ xxxxxxx";
         new (@"^[0-9]{10}$"),
         //numbers only 7 number
         new (@"^[0-9]{7}$")
-    }; 
+    };
 
     //private readonly Dictionary<string, List<string>> _errors = new();
 
@@ -38,9 +40,11 @@ xxxxxxx";
     public override IEnumerable<DbModel> DependentEntities =>
         new DbModel[] { _customer.Address, _customer.Address.City, _customer.Address.City.Country };
 
-    public CustomerCardVm(IDataService data, IDialogService dialogService) : base(data, dialogService) { }
-
-    public event EventHandler<EventArgs>? CardDeleted;
+    public CustomerDtoVm(IDataService data,
+        IDialogService dialogService,
+        IMessenger messenger) :
+        base(data, dialogService)
+        => Messenger = messenger;
 
     [ObservableProperty]
     private int _id;
@@ -52,7 +56,7 @@ xxxxxxx";
     private string? _name;
 
     [ObservableProperty]
-    [CustomValidation(typeof(CustomerCardVm), nameof(ValidatePhone))]
+    [CustomValidation(typeof(CustomerDtoVm), nameof(ValidatePhone))]
     [NotifyDataErrorInfo]
     [NotifyCanExecuteChangedFor(nameof(SaveCustomerCommand))]
     private string? _phone;
@@ -95,12 +99,12 @@ xxxxxxx";
     [RelayCommand]
     void DeleteCustomer()
     {
-        if (DeleteFromDb()) OnCardDeleted();
+        if (DeleteFromDb()) Messenger.Send(new DeletedCustomerCardMessage(this));
     }
 
     public static ValidationResult ValidatePhone(string name, ValidationContext context)
     {
-        var instance = (CustomerCardVm)context.ObjectInstance;
+        var instance = (CustomerDtoVm)context.ObjectInstance;
         var phone = instance.Phone;
         if (phone is null) return new("The Phone field is required.");
         var validFormat = _phoneFormats.Any(x => x.IsMatch(phone));
@@ -110,7 +114,10 @@ xxxxxxx";
 
     partial void OnCityChanged(City? value) => Country = value?.Country;
 
-    partial void OnCountryChanged(Country? value) { if (City is not null) City.Country = value; }
+    partial void OnCountryChanged(Country? value) { if (City is not null) City.Country = value; } 
+
+    public override void InitEmpty()
+        => _customer = new() { Address = new() };
 
     public override void LoadEntity(DbModel entity)
     {
@@ -138,6 +145,6 @@ xxxxxxx";
         _customer.Address.City = City;
         _customer.Address.City!.Country = Country;
     }
-
-    void OnCardDeleted() => CardDeleted?.Invoke(this, EventArgs.Empty);
 }
+
+public record class DeletedCustomerCardMessage(CustomerDtoVm Sender);

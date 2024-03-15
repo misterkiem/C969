@@ -12,10 +12,11 @@ public static class ServiceExtensions
         services.AddSingleton<Func<T>>((x) => () => x.GetService<T>()!);
         services.AddSingleton<IFactory<T>, Factory<T>>();
     }
-    public static void AddCustomerCardVmFactory(this IServiceCollection services)
+    public static void AddDtoVmFactory<T>(this IServiceCollection services)
+        where T : DtoVmBase
     {
-        services.AddTransient<CustomerCardVm>();
-        services.AddSingleton<Func<CustomerCardVm>>((x) => () => x.GetService<CustomerCardVm>()!);
-        services.AddSingleton<ICustomerCardVmFactory, CustomerCardVmFactory>();
+        services.AddTransient<T>();
+        services.AddSingleton<Func<T>>((x) => () => x.GetService<T>()!);
+        services.AddSingleton<IDtoVmFactory<T>, DtoVmFactory<T>>();
     }
 }

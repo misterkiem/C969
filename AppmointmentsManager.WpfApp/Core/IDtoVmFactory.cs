@@ -2,8 +2,8 @@
 using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 
 namespace AppointmentsManager.WpfApp.Core;
-public interface ICustomerCardVmFactory
+public interface IDtoVmFactory<T> where T : DtoVmBase
 {
-    CustomerCardVm CreateEmpty();
-    CustomerCardVm CreateFromExisting(Customer customer);
+    T CreateEmpty();
+    T CreateFromExisting(DbModel model);
 }
