@@ -24,9 +24,10 @@ namespace AppointmentsManager.WpfApp
         public App()
         {
             AppHost = Host.CreateDefaultBuilder()
-                .ConfigureServices((hostContext, services) => InitServices(services))
+                .ConfigureServices((_, services) => InitServices(services))
                 .Build();
         }
+
         void InitServices(IServiceCollection services)
         {
 
@@ -39,17 +40,21 @@ namespace AppointmentsManager.WpfApp
 
             services.AddSingleton<IDataService, DataService>();
             services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<ILoginService, LoginService>();
             services.AddSingleton<IMessenger>((provider) => WeakReferenceMessenger.Default);
-            services.AddSingleton<MainWindowVm>();
             services.AddSingleton<INavService, NavService>();
-            services.AddTransient<LoginWindowVm>();
+
             services.AddFactory<MainWindow>();
             services.AddFactory<LoginWindow>();
             services.AddFactory<UsersControlVm>();
             services.AddFactory<AppointmentManagerControlVm>();
             services.AddFactory<CustomerManagerControlVm>();
+
             services.AddDtoVmFactory<CustomerDtoVm>();
             services.AddDtoVmFactory<AppointmentDtoVm>();
+
+            services.AddSingleton<MainWindowVm>();
+            services.AddTransient<LoginWindowVm>();
             services.AddTransient<AppointmentManagerControl>();
         }
 
@@ -62,9 +67,8 @@ namespace AppointmentsManager.WpfApp
         protected override async void OnStartup(StartupEventArgs e)
         {
             await AppHost!.StartAsync();
-            base.OnStartup(e);
             var window = AppHost.Services.GetRequiredService<LoginWindow>();
-            window?.Show();
+            window.Show();
         }
 
     }

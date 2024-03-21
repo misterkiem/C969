@@ -10,17 +10,20 @@ namespace AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
 
 public partial class LoginWindowVm : WindowVmBase
 {
-    private readonly IDataService data = null!;
+    private readonly IDataService _data = null!;
 
-    private readonly INavService windowManager = null!;
+    private readonly INavService _windowManager = null!;
+
+    private readonly ILoginService _login = null!;
 
     [Obsolete("Design Time Only", true)]
     public LoginWindowVm() { }
 
-    public LoginWindowVm(IDataService _data, INavService _windowManager)
+    public LoginWindowVm(IDataService data, INavService WindowManager, ILoginService login)
     {
-        data = _data;
-        windowManager = _windowManager;
+        _data = data;
+        _windowManager = WindowManager;
+        _login = login;
         if (NotEnglish) ChangeToSpanish();
     }
 
@@ -53,8 +56,8 @@ public partial class LoginWindowVm : WindowVmBase
     [RelayCommand]
     void Login()
     {
-        if (Username is null || Password is null || !data.CheckLogin(Username, Password)) { InvalidLogin = true; return; }
-        windowManager.OpenWindow(WindowType.MainWindow);
+        if (Username is null || Password is null || !_login.AttemptLogin(Username, Password)) { InvalidLogin = true; return; }
+        _windowManager.OpenWindow(WindowType.MainWindow);
         CloseAction?.Invoke();
     }
 

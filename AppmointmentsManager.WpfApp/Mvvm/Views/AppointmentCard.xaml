@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="AppointmentsManager.WpfApp.Mvvm.Views.AppointmentCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Views"
+             xmlns:dto="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms"
+             mc:Ignorable="d"
+             Height="Auto"
+             Width="Auto"
+             d:DataContext="{d:DesignInstance Type=dto:AppointmentDtoVm}"
+             Validation.ErrorTemplate="{x:Null}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+            <Style TargetType="TextBlock" >
+                <Setter Property="VerticalAlignment"
+                        Value="Center" />
+                <Setter Property="Margin"
+                        Value="10,0" />
+            </Style>
+            <Style TargetType="ComboBox">
+                <Setter Property="Width"
+                        Value="Auto" />
+                <Setter Property="MinWidth"
+                        Value="100" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Center" />
+                <Setter Property="Margin"
+                        Value="0,5" />
+            </Style>
+            <Style TargetType="local:CaptionTextbox">
+                <Setter Property="VerticalContentAlignment"
+                        Value="Center" />
+            </Style>
+            <Style TargetType="local:TimePicker" BasedOn="{StaticResource ControlValidationStyle}">
+                <Setter Property="Margin"
+                        Value="5,0" />
+            </Style>
+        </Grid.Resources>
+        <DockPanel >
+            <TextBlock Text="Customer:" />
+            <ComboBox ItemsSource="{Binding Customers}"
+                      SelectedItem="{Binding Customer}"
+                      DisplayMemberPath="customerName" />
+            <TextBlock Text="User:" />
+            <ComboBox ItemsSource="{Binding Users}"
+                      SelectedItem="{Binding User}"
+                      DisplayMemberPath="userName" />
+            <local:CaptionTextbox Caption="Appointment Type:"
+                                  Text="{Binding Type}" />
+        </DockPanel>
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Appointment Date:"
+                           Margin="5,0,0,0" />
+                <Border Padding="5">
+                    <local:DateBoundDatePicker SelectedDateOnly="{Binding Date}" />
+                </Border>
+                <local:TimePicker Caption="Start Time:"
+                                  Time="{Binding Start}" />
+                <local:TimePicker Caption="End Time:"
+                                  Time="{Binding End}" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

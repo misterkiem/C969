@@ -1,6 +1,7 @@
 ﻿using AppointmentsManager.DataAccess.Models;
 using AppointmentsManager.WpfApp.Core;
 using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
+using AppointmentsManager.WpfApp.Mvvm.Vms.Messages;
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;

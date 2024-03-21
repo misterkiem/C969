@@ -5,17 +5,19 @@
                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                    xmlns:local="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Views"
                    xmlns:cvm="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms"
-                   xmlns:ribbon="clr-namespace:System.Windows.Controls.Ribbon.Primitives;assembly=System.Windows.Controls.Ribbon"
+                   xmlns:conv="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Views.Converters"
+                   xmlns:dto="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms"
                    mc:Ignorable="d"
                    d:DesignHeight="400"
                    d:DesignWidth="800"
-                   d:DataContext="{d:DesignInstance Type=cvm:AppointmentManagerControlVm}">
+                   d:DataContext="{d:DesignInstance Type=cvm:AppointmentManagerControlVm}"
+                   FontSize="15">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
-            <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBlock Text="Appointments:"
@@ -25,51 +27,78 @@
                    FontWeight="Bold" />
 
         <!--Appointment Selector Grid-->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0"
-                        Orientation="Vertical"
-                        Margin="30">
-                <StackPanel.Resources>
+        <StackPanel Grid.Row="1">
+            <DockPanel Grid.Column="0">
+                <DockPanel.Resources>
                     <Style TargetType="RadioButton">
                         <Setter Property="Margin"
-                                Value="0, 5" />
-                        <Setter Property="FontSize"
-                                Value="14" />
+                                Value="10" />
                         <Setter Property="VerticalContentAlignment"
                                 Value="Center" />
                     </Style>
-                </StackPanel.Resources>
+                    <conv:AppointmentFilterToBoolConverter x:Key="FilterConverter" />
+                </DockPanel.Resources>
+                <RadioButton x:Name="UserAppointmentsRadio"
+                             Content="Your Appointments"
+                             IsChecked="{Binding SelectedFilter,
+                    Converter={StaticResource FilterConverter},
+                    ConverterParameter={x:Static cvm:AppointmentFilter.UserAppointments}}" />
                 <RadioButton Content="All Appointments"
-                             IsChecked="True" />
+                             IsChecked="{Binding SelectedFilter,
+                    Converter={StaticResource FilterConverter},
+                    ConverterParameter={x:Static cvm:AppointmentFilter.All}}" />
                 <RadioButton x:Name="ByDayRadio"
-                             Content="By Day" />
-                <local:DateBoundDatePicker Grid.Row="1"
-                                           FontSize="16"
-                                           VerticalContentAlignment="Center">
-                    <local:DateBoundDatePicker.Style>
+                             Content="All Appointments By Day"
+                             IsChecked="{Binding SelectedFilter,
+                    Converter={StaticResource FilterConverter},
+                    ConverterParameter={x:Static cvm:AppointmentFilter.ByDay}}" />
+
+                <local:DateBoundDatePicker VerticalContentAlignment="Center"
+                                           SelectedDateOnly="{Binding SelectedDate}"
+                                           AvailableDates="{Binding AvailableDates, Mode=TwoWay}">
+                    <local:DateBoundDatePicker.Resources>
                         <Style TargetType="local:DateBoundDatePicker">
                             <Setter Property="Visibility"
                                     Value="Collapsed" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ElementName=ByDayRadio, Path=IsChecked}"
-                                             Value="True">
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=ByDayRadio}"
+                                             Value="true">
                                     <Setter Property="Visibility"
                                             Value="Visible" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </local:DateBoundDatePicker.Style>
+                    </local:DateBoundDatePicker.Resources>
                 </local:DateBoundDatePicker>
-            </StackPanel>
-            <ListView Grid.Column="1"
-                      Margin="0,0,10,0"
-                      ItemsSource="{Binding AppointmentsView}"
-                      DisplayMemberPath="start">
-            </ListView>
-        </Grid>
+            </DockPanel>
+        </StackPanel>
+        <ListView Grid.Row="2"
+                  Margin="5"
+                  ItemsSource="{Binding AppointmentsView}"
+                  SelectedItem="{Binding SelectedAppointment}"
+                  DisplayMemberPath="DisplayName"
+                  HorizontalAlignment="Stretch"
+                  Validation.ErrorTemplate="{x:Null}"
+                  ItemContainerStyle="{StaticResource ItemValidationStyle}">
+        </ListView>
+        <local:AppointmentCard Grid.Row="3"
+                               DataContext="{Binding SelectedAppointment}" />
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center">
+            <StackPanel.Resources>
+                <Style TargetType="Button"
+                       BasedOn="{StaticResource {x:Type Button}}">
+                    <Setter Property="Margin"
+                            Value="20,8" />
+                    <Setter Property="Padding"
+                            Value="8" />
+                </Style>
+            </StackPanel.Resources>
+            <Button Content="Save Appointment"
+                    Command="{Binding AddAppointmentCommand}" />
+            <Button Content="Add Appointment" />
+            <Button Content="Delete Appointment" />
+        </StackPanel>
     </Grid>
 </local:ControlBase>

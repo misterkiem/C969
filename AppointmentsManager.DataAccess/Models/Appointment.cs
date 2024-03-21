@@ -25,19 +25,19 @@ public class Appointment : DbModel
 
     [Required]
     [Column(TypeName = "VARCHAR(255)")]
-    public string title { get; set; }
+    public string title { get; set; } = string.Empty;
 
     [Required]
     [Column(TypeName = "TEXT")]
-    public string description { get; set; }
+    public string description { get; set; } = string.Empty;
 
     [Required]
     [Column(TypeName = "TEXT")]
-    public string location { get; set; }
+    public string location { get; set; } = string.Empty;
 
     [Required]
     [Column(TypeName = "TEXT")]
-    public string contact { get; set; }
+    public string contact { get; set; } = string.Empty;
 
     [Required]
     [Column(TypeName = "TEXT")]
@@ -45,7 +45,7 @@ public class Appointment : DbModel
 
     [Required]
     [Column(TypeName = "VARCHAR(255)")]
-    public string url { get; set; }
+    public string url { get; set; } = string.Empty;
 
     [Column(TypeName = "DATETIME")]
     public DateTime start { get; set; }

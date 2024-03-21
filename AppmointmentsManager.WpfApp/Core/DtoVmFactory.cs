@@ -12,14 +12,14 @@ namespace AppointmentsManager.WpfApp.Core
             _factory = factory;
         }
 
-        public T CreateEmpty()
+        public virtual T CreateEmpty()
         {
             var vm = _factory();
             vm.InitEmpty();
             return vm;
         }
 
-        public T CreateFromExisting(DbModel model)
+        public virtual T CreateFromExisting(DbModel model)
         {
             var vm = _factory();
             vm.LoadEntity(model);

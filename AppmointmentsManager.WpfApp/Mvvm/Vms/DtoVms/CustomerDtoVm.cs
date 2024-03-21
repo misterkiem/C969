@@ -1,4 +1,5 @@
 ﻿using AppointmentsManager.DataAccess.Models;
+using AppointmentsManager.WpfApp.Mvvm.Vms.Messages;
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -93,6 +94,12 @@ xxxxxxx";
     [RelayCommand(CanExecute = nameof(CanSave))]
     void SaveCustomer()
     {
+        ValidateAllProperties();
+        if (HasErrors)
+        {
+            _dialog.ShowMessage("This Customer has errors. Please check inputs and correct.", "Input Errors For This Customer");
+            return;
+        }
         if (SaveToDb()) Id = _customer.Id;
     }
 
@@ -102,19 +109,19 @@ xxxxxxx";
         if (DeleteFromDb()) Messenger.Send(new DeletedCustomerCardMessage(this));
     }
 
-    public static ValidationResult ValidatePhone(string name, ValidationContext context)
+    public static ValidationResult? ValidatePhone(string name, ValidationContext context)
     {
         var instance = (CustomerDtoVm)context.ObjectInstance;
         var phone = instance.Phone;
         if (phone is null) return new("The Phone field is required.");
         var validFormat = _phoneFormats.Any(x => x.IsMatch(phone));
         if (!validFormat) return new(_invalidPhoneMessage);
-        return ValidationResult.Success!;
+        return ValidationResult.Success;
     }
 
     partial void OnCityChanged(City? value) => Country = value?.Country;
 
-    partial void OnCountryChanged(Country? value) { if (City is not null) City.Country = value; } 
+    partial void OnCountryChanged(Country? value) { if (City is not null) City.Country = value; }
 
     public override void InitEmpty()
         => _customer = new() { Address = new() };
@@ -132,8 +139,9 @@ xxxxxxx";
         Phone = customer.Address.phone;
         City = customer.Address.City;
         Country = customer.Address.City?.Country;
-        ValidateAllProperties();
+        ValidateAllProperties(); 
     }
+
 
     protected override void SaveEntity()
     {
@@ -146,5 +154,3 @@ xxxxxxx";
         _customer.Address.City!.Country = Country;
     }
 }
-
-public record class DeletedCustomerCardMessage(CustomerDtoVm Sender);

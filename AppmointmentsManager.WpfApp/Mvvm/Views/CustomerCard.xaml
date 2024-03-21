@@ -8,15 +8,13 @@
              mc:Ignorable="d"
              d:DesignHeight="140"
              d:DesignWidth="800"
-             d:DataContext="{d:DesignInstance Type=dvm:CustomerDtoVm}">
-    <UserControl.Resources>
-
-    </UserControl.Resources>
+             d:DataContext="{d:DesignInstance Type=dvm:CustomerDtoVm}"
+             Validation.ErrorTemplate="{x:Null}">
     <Grid>
         <Grid>
             <Grid.Resources>
                 <Style TargetType="ComboBox"
-                       BasedOn="{StaticResource ValidationTooltipStyle}">
+                       BasedOn="{StaticResource ControlValidationStyle}">
                     <Setter Property="VerticalContentAlignment"
                             Value="Center" />
                     <Setter Property="Margin"
@@ -26,8 +24,7 @@
                     <Setter Property="FontSize"
                             Value="14" />
                 </Style>
-                <Style TargetType="local:CaptionTextbox" 
-                       BasedOn="{StaticResource {x:Type local:CaptionTextbox}}">
+                <Style TargetType="local:CaptionTextbox" >
                     <Setter Property="VerticalContentAlignment"
                             Value="Center" />
                     <Setter Property="FontSize"

@@ -6,17 +6,17 @@ namespace AppointmentsManager.WpfApp.Core;
 
 public partial class NavService : ObservableObject, INavService
 {
-    private readonly Dictionary<WindowType, Func<WindowBase>> factories = new() { };
+    private readonly Dictionary<WindowType, Func<WindowBase>> _factories = new() { };
 
     public NavService(IFactory<MainWindow> mainWindowFactory, IFactory<LoginWindow> loginWindowFactory)
     {
-        factories.Add(WindowType.MainWindow, () => mainWindowFactory.Create());
-        factories.Add(WindowType.LoginWindow, () => loginWindowFactory.Create());
+        _factories.Add(WindowType.MainWindow, () => mainWindowFactory.Create());
+        _factories.Add(WindowType.LoginWindow, () => loginWindowFactory.Create());
     }
 
-    public void OpenWindow(WindowType windowType) => factories[windowType].Invoke().Show();
+    public void OpenWindow(WindowType windowType) => _factories[windowType].Invoke().Show();
 
-    public void OpenDialog(WindowType windowType) => factories[windowType].Invoke().ShowDialog();
+    public void OpenDialog(WindowType windowType) => _factories[windowType].Invoke().ShowDialog();
 
     [ObservableProperty]
     ControlVmBase? currentView;
