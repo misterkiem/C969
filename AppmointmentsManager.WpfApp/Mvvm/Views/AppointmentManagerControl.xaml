@@ -73,7 +73,7 @@
             </DockPanel>
         </StackPanel>
         <ListView Grid.Row="2"
-                  Margin="5"
+                  Margin="10"
                   ItemsSource="{Binding AppointmentsView}"
                   SelectedItem="{Binding SelectedAppointment}"
                   DisplayMemberPath="DisplayName"
@@ -82,6 +82,7 @@
                   ItemContainerStyle="{StaticResource ItemValidationStyle}">
         </ListView>
         <local:AppointmentCard Grid.Row="3"
+                               Margin="10"
                                DataContext="{Binding SelectedAppointment}" />
         <StackPanel Grid.Row="4"
                     Orientation="Horizontal"
@@ -95,10 +96,12 @@
                             Value="8" />
                 </Style>
             </StackPanel.Resources>
-            <Button Content="Save Appointment"
+            <Button Content="New Appointment"
                     Command="{Binding AddAppointmentCommand}" />
-            <Button Content="Add Appointment" />
-            <Button Content="Delete Appointment" />
+            <Button Content="Save Appointment"
+                    Command="{Binding SaveAppointmentCommand}" />
+            <Button Content="Delete Appointment"
+                    Command="{Binding DeleteAppointmentCommand}" />
         </StackPanel>
     </Grid>
 </local:ControlBase>

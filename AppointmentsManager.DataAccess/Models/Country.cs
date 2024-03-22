@@ -13,6 +13,9 @@ public class Country : DbModel
     [NotMapped]
     public override int Id => countryId;
 
+    [NotMapped]
+    public override Type Type => typeof(Country);
+
     [Required]
     [Column(TypeName = "VARCHAR(50)")]
     public string country { get; set; }

@@ -1,4 +1,5 @@
 ﻿using AppointmentsManager.DataAccess.Models;
+using AppointmentsManager.WpfApp.Core;
 using AppointmentsManager.WpfApp.Mvvm.Vms.Messages;
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -6,7 +7,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using System.Windows;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 
@@ -15,11 +16,7 @@ public partial class AppointmentDtoVm : DtoVmBase
 {
     private bool _initialized = false;
 
-    private bool _isEndValidating = false;
-
-    private bool _isStartValidating = false;
-
-    private Appointment _appointment = null!;
+    private Appointment _appointment = new();
 
     public AppointmentDtoVm(IDataService data,
         IDialogService dialog,
@@ -27,20 +24,30 @@ public partial class AppointmentDtoVm : DtoVmBase
     {
         Messenger = messenger;
         Overlaps.CollectionChanged += (_, _) => ValidateTimes();
+        ErrorsChanged += OnErrorsChanged;
     }
 
-    partial void OnDateChanged(DateOnly oldValue, DateOnly newValue)
+    partial void OnStartChanging(DateTime value) => CheckOverlaps(value, End);
+
+    partial void OnEndChanging(DateTime value) => CheckOverlaps(Start, value);
+
+    partial void OnStartChanged(DateTime oldValue, DateTime newValue)
     {
-        Messenger.Send(new AppointmentDateChangedMessage(oldValue, newValue));
+        CheckAppointmentDates(oldValue, newValue);
+        ValidateProperty(End, nameof(End));
     }
 
-    partial void OnEndChanged(TimeOnly value) => ValidateProperty(Start, nameof(Start));
+    partial void OnEndChanged(DateTime oldValue, DateTime newValue)
+    {
+        CheckAppointmentDates(oldValue, newValue);
+        ValidateProperty(Start, nameof(Start));
+    }
 
-    partial void OnEndChanging(TimeOnly value) => CheckNewEnd(value);
+    private void OnErrorsChanged(object? sender, DataErrorsChangedEventArgs e)
+    {
+        Messenger.Send(new AppointmentErrorsChanged(this));
+    }
 
-    partial void OnStartChanged(TimeOnly value) => ValidateProperty(End, nameof(End));
-
-    partial void OnStartChanging(TimeOnly value) => CheckNewStart(value);
 
     public override DbModel DbModel => _appointment;
 
@@ -58,28 +65,36 @@ public partial class AppointmentDtoVm : DtoVmBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DisplayName))]
+    [CustomValidation(typeof(AppointmentDtoVm), nameof(ValidateTime))]
     [Required]
     [NotifyDataErrorInfo]
-    private DateOnly _date;
+    private DateTime _start;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DisplayName))]
     [NotifyDataErrorInfo]
     [CustomValidation(typeof(AppointmentDtoVm), nameof(ValidateTime))]
     [Required]
-    private TimeOnly _end;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DisplayName))]
-    [CustomValidation(typeof(AppointmentDtoVm), nameof(ValidateTime))]
-    [Required]
-    [NotifyDataErrorInfo]
-    private TimeOnly _start;
+    private DateTime _end;
 
     [ObservableProperty]
     [Required]
     [NotifyDataErrorInfo]
     private string? _type;
+
+    public IEnumerable<DateOnly> AppointmentDates
+    {
+        get
+        {
+            var startDate = DateOnly.FromDateTime(Start);
+            var endDate = DateOnly.FromDateTime(End);
+            return startDate == endDate ? Enumerable.Repeat(startDate, 1) : new[] { startDate, endDate };
+        }
+    }
+
+    public bool IsOnDate(DateOnly date) => DateOnly.FromDateTime(Start) == date || DateOnly.FromDateTime(End) == date;
+
+    private DateTimeRange DateTimeRange => new(Start, End);
 
     public ObservableCollection<AppointmentDtoVm> Appointments { get; set; } = new();
 
@@ -87,7 +102,7 @@ public partial class AppointmentDtoVm : DtoVmBase
 
     public ReadOnlyObservableCollection<User> Users => _data.Users;
 
-    public string DisplayName => $"{Date}: {Start} - {End}, " +
+    public string DisplayName => $"{Start} - {End}, " +
         $"User: {User?.userName ?? "N/A"}, " +
         $"Customer: {Customer?.customerName ?? "N/A"}";
 
@@ -96,8 +111,8 @@ public partial class AppointmentDtoVm : DtoVmBase
     public static ValidationResult? ValidateTime(object? value, ValidationContext context)
     {
         var instance = (AppointmentDtoVm)context.ObjectInstance;
-        var time = (TimeOnly)value!;
-        if (!instance.CheckOpenHours(time))
+        var time = (DateTime)value!;
+        if (!CheckOpenHours(time))
             return new($"Time is outside of bounds 9AM - 5PM Eastern Standard Time.");
         if (instance.Start > instance.End) return new("Start time is after end time.");
         if (instance.Overlaps.Count > 0)
@@ -116,7 +131,6 @@ public partial class AppointmentDtoVm : DtoVmBase
             contact = string.Empty,
             url = string.Empty,
         };
-        Date = DateOnly.FromDateTime(DateTime.Today);
         Start = new(12, 0);
         End = Start.AddMinutes(30);
         _initialized = true;
@@ -128,68 +142,53 @@ public partial class AppointmentDtoVm : DtoVmBase
         base.LoadEntity(entity);
         _appointment = appointment;
         Type = _appointment.type;
-        Date = DateOnly.FromDateTime(_appointment.start);
-        Start = TimeOnly.FromDateTime(_appointment.start.ToLocalTime());
-        End = TimeOnly.FromDateTime(_appointment.end.ToLocalTime());
+        Start = _appointment.start.ToLocalTime();
+        End = _appointment.end.ToLocalTime();
         Customer = _appointment.Customer;
         User = _appointment.User;
         _initialized = true;
         ValidateAllProperties();
     }
 
+    public void Save()
+    {
+        ValidateAllProperties();
+        if (HasErrors)
+        {
+            MessageBox.Show("This appointment has input errors. Please resolve before saving");
+            return;
+        }
+        SaveEntity();
+        SaveToDb();
+    }
+
     protected override void SaveEntity()
     {
         _appointment.type = Type;
-        _appointment.start = Date.ToDateTime(Start);
-        _appointment.end = Date.ToDateTime(End);
+        _appointment.start = Start.ToUniversalTime();
+        _appointment.end = End.ToUniversalTime();
         _appointment.Customer = Customer;
         _appointment.User = User;
     }
 
-    private bool CheckOpenHours(TimeOnly time) => ConvertEst(time).IsBetween(new(9, 0), new(17, 1));
+    private static bool CheckOpenHours(DateTime time) => ConvertEst(time).IsBetween(new(9, 0), new(17, 1));
 
-    private TimeOnly ConvertEst(TimeOnly time)
+    private static TimeOnly ConvertEst(DateTime time)
     {
-        var converted = TimeZoneInfo.ConvertTime(Date.ToDateTime(time), TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
-        return TimeOnly.FromDateTime(converted);
+        var convertedDateTime = TimeZoneInfo.ConvertTime(time, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
+        return TimeOnly.FromDateTime(convertedDateTime);
     }
 
-    private void CheckNewEnd(TimeOnly newEnd)
+    private static bool IsOverlapping(AppointmentDtoVm appointment, DateTime start, DateTime end)
     {
-        //don't run if not initialized
-        if (!_initialized) return;
-
-        //clean out old overlaps
-        foreach (var apt in Overlaps.ToArray())
-        {
-            if (!IsOverlappable(apt)) RemoveOverlap(apt);
-            if (!OverlappingStart(apt, Start, newEnd)) RemoveOverlap(apt);
-        }
-
-        //check for new overlaps
-        var overlaps = GetOverlappable().Where(a => OverlappingEnd(a, Start, newEnd));
-        foreach (var overlap in overlaps) AddOverlap(overlap);
+        return DateTimeRange.IsOverlapping(appointment.DateTimeRange, new(start, end));
     }
 
-    private void CheckNewStart(TimeOnly newStart)
-    {
-        //don't run if not initialized
-        if (!_initialized) return;
+    private bool IsOverlappable(AppointmentDtoVm apt) => apt.User.Id == User.Id;
 
-        //clean out old overlaps
-        foreach (var apt in Overlaps.ToArray())
-        {
-            if (!IsOverlappable(apt)) RemoveOverlap(apt);
-            if (!OverlappingStart(apt, newStart, End)) RemoveOverlap(apt);
-        }
-
-        //check for new overlaps
-        var overlaps = GetOverlappable().Where(a => OverlappingStart(a, newStart, End));
-        foreach (var overlap in overlaps)
-        {
-            AddOverlap(overlap);
-        }
-    }
+    private IEnumerable<AppointmentDtoVm> GetOverlappable() => Appointments
+         .Except(Overlaps.Append(this))
+         .Where(a => IsOverlappable(a));
 
     private void AddOverlap(AppointmentDtoVm appointment)
     {
@@ -203,38 +202,33 @@ public partial class AppointmentDtoVm : DtoVmBase
         Overlaps.Remove(appointment);
     }
 
-    private IEnumerable<AppointmentDtoVm> GetOverlappable() => Appointments
-        .Except(Overlaps.Append(this))
-        .Where(a => IsOverlappable(a));
-
-    private bool IsCurrentlyOverlapping(AppointmentDtoVm appointment) =>
-        IsOverlapping(appointment, Start, End);
-
-    private bool IsOverlappable(AppointmentDtoVm apt) => apt.User.Id == User.Id && apt.Date == Date;
-
-    private bool IsOverlapping(AppointmentDtoVm appointment, TimeOnly start, TimeOnly end)
-        => OverlappingStart(appointment, start, end) || OverlappingEnd(appointment, start, end);
-
-
-    private bool OverlappingEnd(AppointmentDtoVm appointment, TimeOnly start, TimeOnly end)
+    private void CheckOverlaps(DateTime start, DateTime end)
     {
-        if (end == appointment.Start) return false;
-        if (end.IsBetween(appointment.Start, appointment.End)) return true;
-        if (appointment.End.IsBetween(start, end) && appointment.End != start) return true;
-        return false;
-    }
+        //clean out old overlaps
+        foreach (var apt in Overlaps.ToArray())
+        {
+            if (!IsOverlappable(apt)) RemoveOverlap(apt);
+            if (!IsOverlapping(apt, start, end)) RemoveOverlap(apt);
+        }
 
-    private bool OverlappingStart(AppointmentDtoVm appointment, TimeOnly start, TimeOnly end)
-    {
-        if (start == appointment.End) return false;
-        if (start.IsBetween(appointment.Start, appointment.End)) return true;
-        if (appointment.Start.IsBetween(start, end) && appointment.Start != end) return true;
-        return false;
+        //check for new overlaps
+        var overlaps = GetOverlappable().Where(a => IsOverlapping(a, start, end));
+        foreach (var overlap in overlaps)
+        {
+            AddOverlap(overlap);
+        }
     }
-
     private void ValidateTimes()
     {
         ValidateProperty(End, nameof(End));
         ValidateProperty(Start, nameof(Start));
     }
+    private void CheckAppointmentDates(DateTime oldDate, DateTime newDate)
+    {
+        if (!_initialized) return;
+        if (oldDate.Date == newDate.Date) return;
+        var message = new AppointmentDateChangedMessage(DateOnly.FromDateTime(oldDate), DateOnly.FromDateTime(newDate));
+        Messenger.Send(message);
+    }
+
 }

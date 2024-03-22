@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Windows.Data;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
@@ -22,7 +23,7 @@ public enum AppointmentFilter
 }
 
 [ObservableRecipient]
-public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<AppointmentDateChangedMessage>
+public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<AppointmentDateChangedMessage>, IRecipient<AppointmentErrorsChanged>
 {
     private readonly IDtoVmFactory<AppointmentDtoVm> _appointmentFac;
 
@@ -45,7 +46,7 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
         AppointmentsView = CollectionViewSource.GetDefaultView(_appointments);
         AppointmentsView.Filter = (x) => FilterAppointment((AppointmentDtoVm)x);
 
-        AvailableDates = new(_appointments.Select((x) => x.Date).Distinct());
+        AvailableDates = new(_appointments.SelectMany((x) => x.AppointmentDates).Distinct());
         Messenger.RegisterAll(this);
     }
 
@@ -55,6 +56,8 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
     private IDataService _data;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveAppointmentCommand))]
+    [NotifyCanExecuteChangedFor(nameof(DeleteAppointmentCommand))]
     private AppointmentDtoVm? _selectedAppointment;
 
     [ObservableProperty]
@@ -69,26 +72,31 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
     [RelayCommand]
     private void AddAppointment()
     {
-
+        var newVm = _appointmentFac.CreateEmpty();
+        newVm.Appointments = _appointments;
+        _appointments.Add(newVm);
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanSave))]
     private void SaveAppointment()
     {
-
+        if (SelectedAppointment is null) return;
+        SelectedAppointment.Save();
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanDelete))]
     private void DeleteAppointment()
     {
 
-    } 
+    }
+
+    private bool CanDelete() => SelectedAppointment is not null;
 
     public void Receive(AppointmentDateChangedMessage message)
     {
-        var oldDate = message.oldValue;
-        var newDate = message.newValue;
-        if (!_appointments.Any((x) => x.Date == oldDate)) AvailableDates.Remove(oldDate);
+        var oldDate = message.OldValue;
+        var newDate = message.NewValue;
+        if (!_appointments.Any((x) => x.IsOnDate(oldDate))) AvailableDates.Remove(oldDate);
         if (!AvailableDates.Any((x) => x == newDate)) AvailableDates.Add(newDate);
     }
 
@@ -105,7 +113,9 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
 
             case AppointmentFilter.ByDay:
                 if (SelectedDate is null) return false;
-                return appointment.Date == SelectedDate;
+                if (DateOnly.FromDateTime(appointment.Start) == SelectedDate) return true;
+                if (DateOnly.FromDateTime(appointment.End) == SelectedDate) return true;
+                return false;
 
             case AppointmentFilter.UserAppointments:
                 return appointment.User?.userId == _login.LoggedInUser?.userId;
@@ -115,10 +125,17 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
         }
     }
 
+    private bool CanSave() => !SelectedAppointment?.HasErrors ?? false;
+
     private ValidationResult? CheckAppointment(AppointmentDtoVm appointment)
     {
         if (_appointments.Any(x => x.Start < appointment.End || x.End > appointment.Start))
             return new("This appointment is overlapping with an existing appointment.");
         return ValidationResult.Success;
+    }
+
+    public void Receive(AppointmentErrorsChanged message)
+    {
+        if (message.Appointment == SelectedAppointment) SaveAppointmentCommand.NotifyCanExecuteChanged();
     }
 }

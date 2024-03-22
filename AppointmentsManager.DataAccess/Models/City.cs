@@ -13,6 +13,9 @@ public class City : DbModel
     [NotMapped]
     public override int Id => cityId;
 
+    [NotMapped]
+    public override Type Type => typeof(City);
+
     [Required]
     [Column(TypeName = "VARCHAR(50)")]
     public string city { get; set; }

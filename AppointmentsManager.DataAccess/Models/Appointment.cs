@@ -13,6 +13,9 @@ public class Appointment : DbModel
     [NotMapped]
     public override int Id => appointmentId;
 
+    [NotMapped]
+    public override Type Type => typeof(Appointment);
+
     [Column(TypeName = "INT(10)")]
     public int customerId { get; set; }
 

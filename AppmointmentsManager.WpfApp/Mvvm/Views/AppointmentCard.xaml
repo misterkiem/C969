@@ -13,18 +13,10 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
         <Grid.Resources>
-            <Style TargetType="TextBlock" >
+            <Style TargetType="TextBlock">
                 <Setter Property="VerticalAlignment"
                         Value="Center" />
                 <Setter Property="Margin"
@@ -34,7 +26,7 @@
                 <Setter Property="Width"
                         Value="Auto" />
                 <Setter Property="MinWidth"
-                        Value="100" />
+                        Value="125" />
                 <Setter Property="VerticalContentAlignment"
                         Value="Center" />
                 <Setter Property="Margin"
@@ -44,36 +36,35 @@
                 <Setter Property="VerticalContentAlignment"
                         Value="Center" />
             </Style>
-            <Style TargetType="local:TimePicker" BasedOn="{StaticResource ControlValidationStyle}">
+            <Style TargetType="local:DateTimePicker"
+                   BasedOn="{StaticResource ControlValidationStyle}">
                 <Setter Property="Margin"
-                        Value="5,0" />
+                        Value="15,0" />
             </Style>
         </Grid.Resources>
-        <DockPanel >
-            <TextBlock Text="Customer:" />
-            <ComboBox ItemsSource="{Binding Customers}"
-                      SelectedItem="{Binding Customer}"
-                      DisplayMemberPath="customerName" />
+        <StackPanel Margin="10">
             <TextBlock Text="User:" />
             <ComboBox ItemsSource="{Binding Users}"
                       SelectedItem="{Binding User}"
                       DisplayMemberPath="userName" />
+            <TextBlock Text="Customer:" />
+            <ComboBox ItemsSource="{Binding Customers}"
+                      SelectedItem="{Binding Customer}"
+                      DisplayMemberPath="customerName" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical"
+                    Grid.Column="1"
+                    HorizontalAlignment="Stretch">
             <local:CaptionTextbox Caption="Appointment Type:"
-                                  Text="{Binding Type}" />
-        </DockPanel>
-        <StackPanel Orientation="Horizontal"
-                    Grid.Row="1">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Appointment Date:"
-                           Margin="5,0,0,0" />
-                <Border Padding="5">
-                    <local:DateBoundDatePicker SelectedDateOnly="{Binding Date}" />
-                </Border>
-                <local:TimePicker Caption="Start Time:"
-                                  Time="{Binding Start}" />
-                <local:TimePicker Caption="End Time:"
-                                  Time="{Binding End}" />
-            </StackPanel>
+                                  Text="{Binding Type}"
+                                  Margin="0,0,10,0" />
+            <UniformGrid Rows="1">
+                <local:DateTimePicker Caption="Start Time:"
+                                      SelectedDateTime="{Binding Start}"/>
+                <local:DateTimePicker Caption="End Time:"
+                                      SelectedDateTime="{Binding End}"/>
+            </UniformGrid>
+
         </StackPanel>
     </Grid>
 </UserControl>

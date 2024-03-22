@@ -13,6 +13,9 @@ public class Address : DbModel
     [NotMapped]
     public override int Id => addressId;
 
+    [NotMapped]
+    public override Type Type => typeof(Address);
+
     [Required]
     [Column(TypeName = "VARCHAR(50)")]
     public string address { get; set; } = string.Empty;

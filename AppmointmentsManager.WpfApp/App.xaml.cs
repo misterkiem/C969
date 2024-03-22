@@ -38,7 +38,7 @@ namespace AppointmentsManager.WpfApp
             }, 
             ServiceLifetime.Transient);
 
-            services.AddSingleton<IDataService, DataService>();
+            services.AddSingleton<IDataService, MySqlDataService>();
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<ILoginService, LoginService>();
             services.AddSingleton<IMessenger>((provider) => WeakReferenceMessenger.Default);

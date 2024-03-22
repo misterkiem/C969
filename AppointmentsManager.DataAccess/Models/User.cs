@@ -13,6 +13,9 @@ public class User : DbModel
     [NotMapped]
     public override int Id => userId;
 
+    [NotMapped]
+    public override Type Type => typeof(User);
+
     [Required]
     [Column(TypeName = "VARCHAR(50)")]
     public string userName { get; set; }

@@ -7,6 +7,9 @@ public abstract class DbModel
     [NotMapped]
     public abstract int Id { get; }
 
+    [NotMapped]
+    public abstract Type Type { get; }
+
 
     [Column(TypeName = "DATETIME")]
     public DateTime createDate { get; set; }
