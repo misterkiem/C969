@@ -25,7 +25,6 @@
         <Compile Include="Mvvm\Vms\ControlVms\CustomerManagerControlVm.cs" />
         <Compile Include="Mvvm\Vms\DtoVms\AppointmentDtoVm.cs" />
         <Compile Include="Mvvm\Vms\DtoVms\DtoVmBase.cs" />
-        <Compile Include="Mvvm\Vms\DtoVms\LessThanAttribute.cs" />
         <Compile Include="Mvvm\Vms\Messages\Messages.cs" />
         <Compile Include="Mvvm\Vms\WindowVms\LoginWindowVm.cs" />
         <Compile Include="Mvvm\Vms\WindowVms\MainWindowVm.cs" />

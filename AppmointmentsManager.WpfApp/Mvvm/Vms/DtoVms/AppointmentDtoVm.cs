@@ -162,7 +162,7 @@ public partial class AppointmentDtoVm : DtoVmBase
         ValidateAllProperties();
         if (HasErrors)
         {
-            MessageBox.Show("This appointment has input errors. Please resolve before saving");
+            _dialog.ShowMessage("This appointment has input errors. Please resolve before saving", "Invalid Appointment");
             return;
         }
         SaveEntity();
