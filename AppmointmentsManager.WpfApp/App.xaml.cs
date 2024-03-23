@@ -46,16 +46,16 @@ namespace AppointmentsManager.WpfApp
 
             services.AddFactory<MainWindow>();
             services.AddFactory<LoginWindow>();
-            services.AddFactory<UsersControlVm>();
-            services.AddFactory<AppointmentManagerControlVm>();
-            services.AddFactory<CustomerManagerControlVm>();
+            services.AddFactory<ReportsControlVm>();
 
             services.AddDtoVmFactory<CustomerDtoVm>();
             services.AddDtoVmFactory<AppointmentDtoVm>();
 
             services.AddSingleton<MainWindowVm>();
             services.AddTransient<LoginWindowVm>();
-            services.AddTransient<AppointmentManagerControl>();
+            services.AddTransient<AppointmentManagerControlVm>();
+            services.AddTransient<CustomerManagerControlVm>();
+            services.AddTransient<ReportsControlVm>();
         }
 
         protected override async void OnExit(ExitEventArgs e)

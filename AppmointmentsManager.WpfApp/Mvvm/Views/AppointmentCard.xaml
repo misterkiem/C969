@@ -8,8 +8,7 @@
              mc:Ignorable="d"
              Height="Auto"
              Width="Auto"
-             d:DataContext="{d:DesignInstance Type=dto:AppointmentDtoVm}"
-             Validation.ErrorTemplate="{x:Null}">
+             d:DataContext="{d:DesignInstance Type=dto:AppointmentDtoVm}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -22,7 +21,7 @@
                 <Setter Property="Margin"
                         Value="10,0" />
             </Style>
-            <Style TargetType="ComboBox">
+            <Style TargetType="ComboBox" BasedOn="{StaticResource ControlValidationStyle}">
                 <Setter Property="Width"
                         Value="Auto" />
                 <Setter Property="MinWidth"

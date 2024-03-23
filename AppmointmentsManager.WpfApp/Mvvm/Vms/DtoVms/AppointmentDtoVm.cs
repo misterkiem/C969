@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Windows;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
@@ -52,6 +53,9 @@ public partial class AppointmentDtoVm : DtoVmBase
     public override DbModel DbModel => _appointment;
 
     [ObservableProperty]
+    private bool _isModified;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DisplayName))]
     [Required]
     [NotifyDataErrorInfo]
@@ -61,7 +65,7 @@ public partial class AppointmentDtoVm : DtoVmBase
     [NotifyPropertyChangedFor(nameof(DisplayName))]
     [Required]
     [NotifyDataErrorInfo]
-    private User _user = new();
+    private User? _user;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DisplayName))]
@@ -78,7 +82,7 @@ public partial class AppointmentDtoVm : DtoVmBase
     private DateTime _end;
 
     [ObservableProperty]
-    [Required]
+    [Required(ErrorMessage ="Appointment Type is required.")]
     [NotifyDataErrorInfo]
     private string? _type;
 
@@ -102,7 +106,7 @@ public partial class AppointmentDtoVm : DtoVmBase
 
     public ReadOnlyObservableCollection<User> Users => _data.Users;
 
-    public string DisplayName => $"{Start} - {End}, " +
+    public string DisplayName => $"{GetFormattedDateTime(Start)} - {GetFormattedDateTime(End)}, " +
         $"User: {User?.userName ?? "N/A"}, " +
         $"Customer: {Customer?.customerName ?? "N/A"}";
 
@@ -114,11 +118,14 @@ public partial class AppointmentDtoVm : DtoVmBase
         var time = (DateTime)value!;
         if (!CheckOpenHours(time))
             return new($"Time is outside of bounds 9AM - 5PM Eastern Standard Time.");
+        if (!CheckOpenDays(time))
+            return new($"Date is outside of bounds Monday-Friday.");
         if (instance.Start > instance.End) return new("Start time is after end time.");
         if (instance.Overlaps.Count > 0)
             return new($"Times are overlapping with another appointment for this user");
 
         return ValidationResult.Success;
+
     }
 
     public override void InitEmpty()
@@ -131,8 +138,8 @@ public partial class AppointmentDtoVm : DtoVmBase
             contact = string.Empty,
             url = string.Empty,
         };
-        Start = new(12, 0);
-        End = Start.AddMinutes(30);
+        Start = DateTime.Now;
+        End = Start.AddHours(1);
         _initialized = true;
     }
 
@@ -159,7 +166,19 @@ public partial class AppointmentDtoVm : DtoVmBase
             return;
         }
         SaveEntity();
-        SaveToDb();
+        if (SaveToDb()) IsModified = false;
+    }
+
+    public void Delete()
+    {
+        _appointment.User.Appointments.Remove(_appointment);
+        DeleteFromDb(); 
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    { 
+        base.OnPropertyChanged(e);
+        if (_initialized && e.PropertyName != nameof(IsModified)) IsModified = true;
     }
 
     protected override void SaveEntity()
@@ -169,11 +188,19 @@ public partial class AppointmentDtoVm : DtoVmBase
         _appointment.end = End.ToUniversalTime();
         _appointment.Customer = Customer;
         _appointment.User = User;
+        if (!_appointment.User!.Appointments.Contains(_appointment)) _appointment.User.Appointments.Add(_appointment);
     }
 
-    private static bool CheckOpenHours(DateTime time) => ConvertEst(time).IsBetween(new(9, 0), new(17, 1));
+    private static bool CheckOpenHours(DateTime time) => GetEstTime(time).IsBetween(new(9, 0), new(17, 1));
 
-    private static TimeOnly ConvertEst(DateTime time)
+    private static bool CheckOpenDays(DateTime time) => DayOfWeek.Monday<= GetEstDate(time).DayOfWeek && GetEstDate(time).DayOfWeek <= DayOfWeek.Friday;
+
+    private static DateOnly GetEstDate(DateTime time)
+    {
+        var convertedDateTime = TimeZoneInfo.ConvertTime(time, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
+        return DateOnly.FromDateTime(convertedDateTime);
+    }
+    private static TimeOnly GetEstTime(DateTime time)
     {
         var convertedDateTime = TimeZoneInfo.ConvertTime(time, TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
         return TimeOnly.FromDateTime(convertedDateTime);
@@ -225,10 +252,16 @@ public partial class AppointmentDtoVm : DtoVmBase
     }
     private void CheckAppointmentDates(DateTime oldDate, DateTime newDate)
     {
-        if (!_initialized) return;
         if (oldDate.Date == newDate.Date) return;
         var message = new AppointmentDateChangedMessage(DateOnly.FromDateTime(oldDate), DateOnly.FromDateTime(newDate));
         Messenger.Send(message);
+    }
+
+    private string GetFormattedDateTime(DateTime dateTime)
+    {
+        var date = dateTime.ToString("d", CultureInfo.CurrentCulture);
+        var time = dateTime.ToShortTimeString();
+        return $"{date} {time}";
     }
 
 }

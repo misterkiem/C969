@@ -1,6 +1,7 @@
-﻿using AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
+﻿using AppointmentsManager.WpfApp.Core;
+using AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
 
-namespace AppointmentsManager.WpfApp.Core;
+namespace AppointmentsManager.WpfApp.Services;
 
 public interface INavService
 {

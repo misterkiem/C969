@@ -7,12 +7,6 @@ namespace AppointmentsManager.WpfApp.Mvvm.Views;
 
 public class DateBoundDatePicker : DatePicker
 {
-    public static readonly DependencyProperty AvailableDatesProperty =
-        DependencyProperty.Register("AvailableDates",
-            typeof(ObservableCollection<DateOnly>),
-            typeof(DateBoundDatePicker),
-            new PropertyMetadata(null, OnAvailableDatesChanged));
-
     static DateBoundDatePicker()
     {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(DateBoundDatePicker), new FrameworkPropertyMetadata(typeof(DateBoundDatePicker)));
@@ -23,6 +17,12 @@ public class DateBoundDatePicker : DatePicker
         get { return (ObservableCollection<DateOnly>)GetValue(AvailableDatesProperty); }
         set { SetValue(AvailableDatesProperty, value); }
     }
+
+    public static readonly DependencyProperty AvailableDatesProperty =
+        DependencyProperty.Register("AvailableDates",
+            typeof(ObservableCollection<DateOnly>),
+            typeof(DateBoundDatePicker),
+            new PropertyMetadata(null, OnAvailableDatesChanged));
 
 
 
@@ -69,6 +69,7 @@ public class DateBoundDatePicker : DatePicker
 
     void BuildBlackoutDates()
     {
+        if (AvailableDates is null) return;
         BlackoutDates.Clear();
         if (AvailableDates.Count < 1) return;
         SelectedDate = null;

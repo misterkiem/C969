@@ -12,32 +12,43 @@ namespace AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
 
 public partial class MainWindowVm : WindowVmBase
 {
-    private readonly INavService nav;
+    private readonly INavService _nav;
 
-    private readonly AppointmentManagerControlVm appointmentsCard;
+    private readonly AppointmentManagerControlVm _appointmentsCard;
 
-    private readonly CustomerManagerControlVm customersCard;
+    private readonly CustomerManagerControlVm _customersCard;
+
+    private readonly ReportsControlVm _reportsVm;
 
     public MainWindowVm(INavService navService,
         AppointmentManagerControlVm appointmentVm,
-        CustomerManagerControlVm customerVm)
+        CustomerManagerControlVm customerVm,
+        ReportsControlVm reportsVm)
     {
-        nav = navService;
-        appointmentsCard = appointmentVm;
-        customersCard = customerVm;
+        _nav = navService;
+        _appointmentsCard = appointmentVm;
+        _customersCard = customerVm;
+        _reportsVm = reportsVm;
     }
 
-    public INavService Nav => nav;
+    public INavService Nav => _nav;
 
     [RelayCommand]
-    void NavToAppointments()
+    private void NavToAppointments()
     {
-        nav.CurrentView = appointmentsCard;
+        _nav.CurrentView = _appointmentsCard;
     }
 
     [RelayCommand]
-    void NavToCustomers()
+    private void NavToCustomers()
     {
-        nav.CurrentView = customersCard;
+        _nav.CurrentView = _customersCard;
+    }
+
+    [RelayCommand]
+    private void NavToReports()
+    {
+        _reportsVm.Refresh();
+        _nav.CurrentView = _reportsVm;
     }
 }

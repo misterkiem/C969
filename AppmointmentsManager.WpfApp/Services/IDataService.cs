@@ -14,9 +14,6 @@ public interface IDataService
     ReadOnlyObservableCollection<Customer> Customers { get; }
     ReadOnlyObservableCollection<User> Users { get; }
 
-    //void AddCity(City city);
-    //void AddCountry(Country country);
-    bool CheckLogin(string username, string password);
     void DeleteModel(DbModel model);
     void SaveModel(DbModel model);
     void SaveModel(DbModel model, IEnumerable<DbModel> dependents);

@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="AppointmentsManager.WpfApp.Mvvm.Views.ReadOnlyAppointmentCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Views"
+             xmlns:mod="clr-namespace:AppointmentsManager.DataAccess.Models;assembly=AppointmentsManager.DataAccess"
+             xmlns:conv="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Views.Converters"
+             mc:Ignorable="d"
+             Height="Auto"
+             d:DesignWidth="850"
+             d:DataContext="{d:DesignInstance Type=mod:Appointment}">
+    <StackPanel>
+        <StackPanel.Resources>
+            <Style TargetType="TextBlock">
+                <Setter Property="Margin"
+                        Value="12" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Center" />
+            </Style>
+            <conv:LocalDateTimeConverter x:Key="TimeConverter" />
+        </StackPanel.Resources>
+        <TextBlock HorizontalAlignment="Center"
+                   FontSize="14"
+                   FontWeight="Bold"
+                   d:Text="Start/End:"
+                   Margin="0,20,0,0">
+            <TextBlock.Text>
+                <MultiBinding StringFormat="Start/End: {0:g} - {1:g}">
+                    <Binding Path="start"
+                             Converter="{StaticResource TimeConverter}" />
+                    <Binding Path="end"
+                             Converter="{StaticResource TimeConverter}" />
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
+        <UniformGrid Rows="1"
+                     Grid.Row="1">
+            <TextBlock d:Text="Customer: Placeholder"
+                       Text="{Binding Customer.customerName, StringFormat='Customer: {0}'}" />
+            <TextBlock d:Text="Appointment Type: Placeholder"
+                       Text="{Binding type, StringFormat='Appointment Type: {0}'}" />
+        </UniformGrid>
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal">
+        </StackPanel>
+
+    </StackPanel>
+</UserControl>

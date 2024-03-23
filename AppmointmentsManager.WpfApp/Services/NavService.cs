@@ -1,8 +1,9 @@
-﻿using AppointmentsManager.WpfApp.Mvvm.Views;
+﻿using AppointmentsManager.WpfApp.Core;
+using AppointmentsManager.WpfApp.Mvvm.Views;
 using AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace AppointmentsManager.WpfApp.Core;
+namespace AppointmentsManager.WpfApp.Services;
 
 public partial class NavService : ObservableObject, INavService
 {

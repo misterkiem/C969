@@ -8,7 +8,7 @@
                    xmlns:conv="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Views.Converters"
                    xmlns:dto="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms"
                    mc:Ignorable="d"
-                   d:DesignHeight="400"
+                   d:DesignHeight="650"
                    d:DesignWidth="800"
                    d:DataContext="{d:DesignInstance Type=cvm:AppointmentManagerControlVm}"
                    FontSize="15">
@@ -24,12 +24,14 @@
                    FontSize="20"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   FontWeight="Bold" />
+                   FontWeight="Bold"
+                   Margin="0,20"/>
 
         <!--Appointment Selector Grid-->
         <StackPanel Grid.Row="1">
-            <DockPanel Grid.Column="0">
-                <DockPanel.Resources>
+            <UniformGrid Grid.Column="0"
+                         Rows="1">
+                <UniformGrid.Resources>
                     <Style TargetType="RadioButton">
                         <Setter Property="Margin"
                                 Value="10" />
@@ -37,7 +39,7 @@
                                 Value="Center" />
                     </Style>
                     <conv:AppointmentFilterToBoolConverter x:Key="FilterConverter" />
-                </DockPanel.Resources>
+                </UniformGrid.Resources>
                 <RadioButton x:Name="UserAppointmentsRadio"
                              Content="Your Appointments"
                              IsChecked="{Binding SelectedFilter,
@@ -70,20 +72,73 @@
                         </Style>
                     </local:DateBoundDatePicker.Resources>
                 </local:DateBoundDatePicker>
-            </DockPanel>
+            </UniformGrid>
         </StackPanel>
-        <ListView Grid.Row="2"
+        <DataGrid Grid.Row="2"
                   Margin="10"
                   ItemsSource="{Binding AppointmentsView}"
                   SelectedItem="{Binding SelectedAppointment}"
-                  DisplayMemberPath="DisplayName"
                   HorizontalAlignment="Stretch"
                   Validation.ErrorTemplate="{x:Null}"
-                  ItemContainerStyle="{StaticResource ItemValidationStyle}">
-        </ListView>
-        <local:AppointmentCard Grid.Row="3"
-                               Margin="10"
-                               DataContext="{Binding SelectedAppointment}" />
+                  ItemContainerStyle="{StaticResource ItemValidationStyle}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single">
+            <DataGrid.Resources>
+                <Style TargetType="TextBox">
+                    <Setter Property="Validation.ErrorTemplate"
+                            Value="{x:Null}" />
+                </Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Validation.ErrorTemplate"
+                            Value="{x:Null}" />
+                </Style>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Validation.ErrorTemplate"
+                            Value="{x:Null}" />
+                </Style>
+                <Style TargetType="TextBlock"
+                       x:Key="UserCellChangedStyle">
+                    <Setter Property="Text"
+                            Value="{Binding User.userName}" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsModified}"
+                                     Value="True">
+                            <Setter Property="Text"
+                                    Value="{Binding User.userName, StringFormat='{}{0}*'}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+                <DataTemplate x:Key="UserCellTemplate">
+                    <TextBlock Style="{StaticResource UserCellChangedStyle}" />
+                </DataTemplate>
+            </DataGrid.Resources>
+
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="User" CellTemplate="{StaticResource UserCellTemplate}"/>
+
+                <DataGridTextColumn Header="Customer"
+                                    Binding="{Binding Customer.customerName}" />
+                <DataGridTextColumn Header="Appointment Start"
+                                    Width="*"
+                                    Binding="{Binding Start, StringFormat=g}" />
+                <DataGridTextColumn Header="Appointment End"
+                                    Width="*"
+                                    Binding="{Binding End, StringFormat=g}" />
+            </DataGrid.Columns>
+
+        </DataGrid>
+        <ContentPresenter Grid.Row="3"
+                          Margin="10"
+                          Content="{Binding SelectedAppointment}"
+                          Validation.ErrorTemplate="{x:Null}">
+            <ContentPresenter.Resources>
+                <DataTemplate DataType="{x:Type dto:AppointmentDtoVm}">
+                    <local:AppointmentCard Grid.Row="3"
+                                           Margin="10" />
+                </DataTemplate>
+            </ContentPresenter.Resources>
+        </ContentPresenter>
         <StackPanel Grid.Row="4"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center">

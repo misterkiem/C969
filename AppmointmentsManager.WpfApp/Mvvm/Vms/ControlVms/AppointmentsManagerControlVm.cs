@@ -45,6 +45,8 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
         foreach (var appointment in _appointments) appointment.Appointments = _appointments;
         AppointmentsView = CollectionViewSource.GetDefaultView(_appointments);
         AppointmentsView.Filter = (x) => FilterAppointment((AppointmentDtoVm)x);
+        SortDescription sort = new(nameof(AppointmentDtoVm.Start), ListSortDirection.Ascending);
+        AppointmentsView.SortDescriptions.Add(sort);
 
         AvailableDates = new(_appointments.SelectMany((x) => x.AppointmentDates).Distinct());
         Messenger.RegisterAll(this);
@@ -74,7 +76,10 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
     {
         var newVm = _appointmentFac.CreateEmpty();
         newVm.Appointments = _appointments;
+        var user = _login.LoggedInUser;
+        if (user is not null) newVm.User = user;
         _appointments.Add(newVm);
+        SelectedAppointment = newVm;
     }
 
     [RelayCommand(CanExecute = nameof(CanSave))]
@@ -87,7 +92,9 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
     [RelayCommand(CanExecute = nameof(CanDelete))]
     private void DeleteAppointment()
     {
-
+        if (SelectedAppointment is null) return;
+        SelectedAppointment.Delete();
+        _appointments.Remove(SelectedAppointment); 
     }
 
     private bool CanDelete() => SelectedAppointment is not null;
@@ -100,7 +107,11 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
         if (!AvailableDates.Any((x) => x == newDate)) AvailableDates.Add(newDate);
     }
 
-    partial void OnSelectedFilterChanged(AppointmentFilter value) => AppointmentsView?.Refresh();
+    partial void OnSelectedFilterChanged(AppointmentFilter value)
+    {
+        SelectedAppointment = null;
+        AppointmentsView?.Refresh();
+    }
 
     partial void OnSelectedDateChanged(DateOnly? value) => AppointmentsView?.Refresh();
 

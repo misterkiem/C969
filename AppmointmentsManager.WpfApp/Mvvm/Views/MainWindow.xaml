@@ -8,9 +8,9 @@
                   xmlns:cvm="clr-namespace:AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms"
                   mc:Ignorable="d"
                   Title="MainWindow"
-                  MinHeight="450"
+                  MinHeight="650"
                   MinWidth="850"
-                  Height="450"
+                  Height="650"
                   Width="850"
                   WindowStartupLocation="CenterScreen"
                   d:DataContext="{d:DesignInstance Type=wvm:MainWindowVm}">
@@ -27,7 +27,8 @@
                     Command="{Binding NavToCustomersCommand}"/>
             <Button Content="Manage Appointments"
                     Command="{Binding NavToAppointmentsCommand}" />
-            <Button Content="Reports" />
+            <Button Content="Reports"
+                    Command="{Binding NavToReportsCommand}"/>
         </UniformGrid>
         <ContentPresenter Grid.Row="1"
                           Content="{Binding Nav.CurrentView}">
@@ -37,6 +38,9 @@
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type cvm:CustomerManagerControlVm}">
                     <local:CustomerManagerControl />
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type cvm:ReportsControlVm}">
+                    <local:ReportsControl />
                 </DataTemplate>
             </ContentPresenter.Resources>
         </ContentPresenter>

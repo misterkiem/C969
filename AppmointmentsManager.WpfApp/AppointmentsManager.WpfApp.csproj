@@ -1,61 +1,63 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PublishSingleFile>true</PublishSingleFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Mvvm\Vms\**" />
-    <EmbeddedResource Remove="Mvvm\Vms\**" />
-    <None Remove="Mvvm\Vms\**" />
-    <Page Remove="Mvvm\Vms\**" />
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="Mvvm\Vms\**" />
+        <EmbeddedResource Remove="Mvvm\Vms\**" />
+        <None Remove="Mvvm\Vms\**" />
+        <Page Remove="Mvvm\Vms\**" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="Mvvm\Vms\ControlVms\AppointmentsManagerControlVm.cs" />
-    <Compile Include="Mvvm\Vms\ControlVms\ControlVmBase.cs" />
-    <Compile Include="Mvvm\Vms\DtoVms\CustomerDtoVm.cs" />
-    <Compile Include="Mvvm\Vms\ControlVms\CustomerManagerControlVm.cs" />
-    <Compile Include="Mvvm\Vms\DtoVms\AppointmentDtoVm.cs" />
-    <Compile Include="Mvvm\Vms\DtoVms\DtoVmBase.cs" />
-    <Compile Include="Mvvm\Vms\DtoVms\LessThanAttribute.cs" />
-    <Compile Include="Mvvm\Vms\Messages\Messages.cs" />
-    <Compile Include="Mvvm\Vms\WindowVms\LoginWindowVm.cs" />
-    <Compile Include="Mvvm\Vms\WindowVms\MainWindowVm.cs" />
-    <Compile Include="Mvvm\Vms\ControlVms\UsersControlVm.cs" />
-    <Compile Include="Mvvm\Vms\WindowVms\WindowVmBase.cs" />
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Mvvm\Vms\ControlVms\AppointmentsManagerControlVm.cs" />
+        <Compile Include="Mvvm\Vms\ControlVms\ControlVmBase.cs" />
+        <Compile Include="Mvvm\Vms\ControlVms\ReportsControlVm.cs" />
+        <Compile Include="Mvvm\Vms\DtoVms\CustomerDtoVm.cs" />
+        <Compile Include="Mvvm\Vms\ControlVms\CustomerManagerControlVm.cs" />
+        <Compile Include="Mvvm\Vms\DtoVms\AppointmentDtoVm.cs" />
+        <Compile Include="Mvvm\Vms\DtoVms\DtoVmBase.cs" />
+        <Compile Include="Mvvm\Vms\DtoVms\LessThanAttribute.cs" />
+        <Compile Include="Mvvm\Vms\Messages\Messages.cs" />
+        <Compile Include="Mvvm\Vms\WindowVms\LoginWindowVm.cs" />
+        <Compile Include="Mvvm\Vms\WindowVms\MainWindowVm.cs" />
+        <Compile Include="Mvvm\Vms\WindowVms\WindowVmBase.cs" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\AppointmentsManager.DataAccess\AppointmentsManager.DataAccess.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\AppointmentsManager.DataAccess\AppointmentsManager.DataAccess.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Mvvm\Views\DateTimePicker.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Mvvm\Views\DateTimePicker.xaml.cs">
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Properties\Settings.Designer.cs">
+            <DesignTimeSharedInput>True</DesignTimeSharedInput>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Settings.settings</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="Properties\Settings.settings">
+            <Generator>SettingsSingleFileGenerator</Generator>
+            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+        </None>
+    </ItemGroup>
 
 </Project>

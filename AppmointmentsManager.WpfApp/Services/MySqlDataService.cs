@@ -42,7 +42,7 @@ namespace AppointmentsManager.WpfApp.Services
             { typeof(Customer), (x) => x._customers },
             { typeof(Appointment), (x) => x._appointments },
             { typeof(User), (x) => x._users },
-        }; 
+        };
 
         public MySqlDataService(IDbContextFactory<AppointmentsDbContext> dbFactory)
         {
@@ -81,18 +81,11 @@ namespace AppointmentsManager.WpfApp.Services
             RemoveModel(model);
         }
 
-        public bool CheckLogin(string username, string password)
-        {
-            var user = _users.Where(u => u.userName == username).FirstOrDefault();
-            if (user is null || user.password != password) return false;
-            return true;
-        }
-
-        void MarkModelForSave(DbModel model, AppointmentsDbContext context)
+        private void MarkModelForSave(DbModel model, AppointmentsDbContext context)
         {
             context.Entry(model).State = model.Id == 0 ?
                 EntityState.Added : EntityState.Modified;
-        } 
+        }
 
         private void CheckForAdd(DbModel model)
         {
@@ -109,7 +102,7 @@ namespace AppointmentsManager.WpfApp.Services
             func(this).Remove(model);
         }
 
-        void InitCollections()
+        private void InitCollections()
         {
             using var db = _dbFactory.CreateDbContext();
             var dbCountries = db.Countries.AsNoTracking()
@@ -128,10 +121,18 @@ namespace AppointmentsManager.WpfApp.Services
             var emptyUsers = db.Users.AsNoTracking().Include(u => u.Appointments).Where(u => u.Appointments.Count == 0).ToArray();
             var aptUsers = _appointments.Select(x => x.User).DistinctBy(u => u.userId);
             _users = new(aptUsers.Concat(emptyUsers));
+            //map users by userid to appointments
+            foreach (var user in aptUsers)
+            {
+                var userApts = _appointments.Where(x => x.User.userId == user.Id).ToHashSet();
+                foreach (var userApt in userApts) { userApt.User = user; }
+                user.Appointments = userApts;
+            } 
+
             InitReadOnlyCollections();
         }
 
-        void InitReadOnlyCollections()
+        private void InitReadOnlyCollections()
         {
             Countries = new(_countries);
             Cities = new(_cities);

@@ -58,6 +58,7 @@ public partial class DateTimePicker : UserControl
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 OnTimeChanged));
 
+    partial void OnSelectedDateChanged(DateTime value) => SetTime();
     partial void OnSelectedHourChanged(int value) => SetTime();
 
     partial void OnSelectedMinuteChanged(int value) => SetTime();

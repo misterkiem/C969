@@ -51,6 +51,7 @@
                        Margin="0" />
             <ComboBox Width="Auto"
                       ItemsSource="{Binding Minutes}"
+                      ItemStringFormat="D2"
                       SelectedValue="{Binding SelectedMinute}" />
             <ComboBox Width="Auto"
                       SelectedValue="{Binding SelectedPeriod}">

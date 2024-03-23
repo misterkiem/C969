@@ -15,15 +15,17 @@ public partial class LoginWindowVm : WindowVmBase
     private readonly INavService _windowManager = null!;
 
     private readonly ILoginService _login = null!;
+    private readonly IDialogService _dialog;
 
     [Obsolete("Design Time Only", true)]
     public LoginWindowVm() { }
 
-    public LoginWindowVm(IDataService data, INavService WindowManager, ILoginService login)
+    public LoginWindowVm(IDataService data, INavService WindowManager, ILoginService login, IDialogService dialog)
     {
         _data = data;
         _windowManager = WindowManager;
         _login = login;
+        _dialog = dialog;
         if (NotEnglish) ChangeToSpanish();
     }
 
@@ -57,6 +59,13 @@ public partial class LoginWindowVm : WindowVmBase
     void Login()
     {
         if (Username is null || Password is null || !_login.AttemptLogin(Username, Password)) { InvalidLogin = true; return; }
+        if (_data.Appointments.Any(apt =>
+            apt.User == _login.LoggedInUser
+            && DateTime.Now < apt.start.ToLocalTime()
+            && apt.start.ToLocalTime() < DateTime.Now.AddMinutes(15)))
+        { 
+            _dialog.ShowMessage("You have an upcoming appointment within the next 15 minutes!", "Upcoming Appointment");
+        }
         _windowManager.OpenWindow(WindowType.MainWindow);
         CloseAction?.Invoke();
     }
