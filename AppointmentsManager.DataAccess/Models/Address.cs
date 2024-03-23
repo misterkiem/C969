@@ -5,7 +5,7 @@ namespace AppointmentsManager.DataAccess.Models;
 
 [Table("address")]
 public class Address : DbModel
-{ 
+{
     [Key]
     [Column(TypeName = "INT(10)")]
     public int addressId { get; set; }

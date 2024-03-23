@@ -1,16 +1,16 @@
-﻿using System.Windows;
+﻿using AppointmentsManager.DataAccess;
+using AppointmentsManager.WpfApp.Core;
+using AppointmentsManager.WpfApp.Mvvm.Views;
+using AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
+using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
+using AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
 using AppointmentsManager.WpfApp.Properties;
 using AppointmentsManager.WpfApp.Services;
-using AppointmentsManager.DataAccess;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
-using AppointmentsManager.WpfApp.Mvvm.Views;
 using Microsoft.Extensions.Hosting;
-using AppointmentsManager.WpfApp.Core;
-using AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
-using AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
-using CommunityToolkit.Mvvm.Messaging;
+using System.Windows;
 
 namespace AppointmentsManager.WpfApp
 {
@@ -35,7 +35,7 @@ namespace AppointmentsManager.WpfApp
             {
                 var connectionString = Settings.Default.client_schedule;
                 opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-            }, 
+            },
             ServiceLifetime.Transient);
 
             services.AddSingleton<IDataService, MySqlDataService>();

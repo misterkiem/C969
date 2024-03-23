@@ -2,7 +2,7 @@
 using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 
 namespace AppointmentsManager.WpfApp.Core
-{ 
+{
     public class DtoVmFactory<T> : IDtoVmFactory<T> where T : DtoVmBase
     {
         private Func<T> _factory;

@@ -1,6 +1,4 @@
 ﻿using AppointmentsManager.WpfApp.Core;
-using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
-using AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -63,7 +61,7 @@ public partial class LoginWindowVm : WindowVmBase
             apt.User == _login.LoggedInUser
             && DateTime.Now < apt.start.ToLocalTime()
             && apt.start.ToLocalTime() < DateTime.Now.AddMinutes(15)))
-        { 
+        {
             _dialog.ShowMessage("You have an upcoming appointment within the next 15 minutes!", "Upcoming Appointment");
         }
         _windowManager.OpenWindow(WindowType.MainWindow);

@@ -102,7 +102,7 @@ public partial class CustomerManagerControlVm : ControlVmBase, IRecipient<Delete
         {
             _dialogService.ShowMessage("Invalid inputs for new city.", "Invalid New City Inputs");
             return;
-        } 
+        }
         var newCity = new City()
         {
             city = NewCityName,

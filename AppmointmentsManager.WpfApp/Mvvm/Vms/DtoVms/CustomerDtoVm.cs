@@ -139,7 +139,7 @@ xxxxxxx";
         Phone = customer.Address.phone;
         City = customer.Address.City;
         Country = customer.Address.City?.Country;
-        ValidateAllProperties(); 
+        ValidateAllProperties();
     }
 
 

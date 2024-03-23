@@ -82,7 +82,7 @@ public partial class AppointmentDtoVm : DtoVmBase
     private DateTime _end;
 
     [ObservableProperty]
-    [Required(ErrorMessage ="Appointment Type is required.")]
+    [Required(ErrorMessage = "Appointment Type is required.")]
     [NotifyDataErrorInfo]
     private string? _type;
 
@@ -172,11 +172,11 @@ public partial class AppointmentDtoVm : DtoVmBase
     public void Delete()
     {
         _appointment.User.Appointments.Remove(_appointment);
-        DeleteFromDb(); 
+        DeleteFromDb();
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-    { 
+    {
         base.OnPropertyChanged(e);
         if (_initialized && e.PropertyName != nameof(IsModified)) IsModified = true;
     }
@@ -193,7 +193,7 @@ public partial class AppointmentDtoVm : DtoVmBase
 
     private static bool CheckOpenHours(DateTime time) => GetEstTime(time).IsBetween(new(9, 0), new(17, 1));
 
-    private static bool CheckOpenDays(DateTime time) => DayOfWeek.Monday<= GetEstDate(time).DayOfWeek && GetEstDate(time).DayOfWeek <= DayOfWeek.Friday;
+    private static bool CheckOpenDays(DateTime time) => DayOfWeek.Monday <= GetEstDate(time).DayOfWeek && GetEstDate(time).DayOfWeek <= DayOfWeek.Friday;
 
     private static DateOnly GetEstDate(DateTime time)
     {

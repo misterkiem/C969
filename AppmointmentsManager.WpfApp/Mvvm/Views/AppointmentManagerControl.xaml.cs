@@ -7,7 +7,7 @@ public partial class AppointmentManagerControl : ControlBase
 {
     public AppointmentManagerControl()
     {
-        InitializeComponent(); 
+        InitializeComponent();
         var test = new DatePicker();
         test.CalendarOpened += somethingNew;
     }

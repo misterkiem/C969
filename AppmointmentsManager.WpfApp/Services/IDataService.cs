@@ -1,7 +1,5 @@
 ﻿using AppointmentsManager.DataAccess.Models;
-using AppointmentsManager.WpfApp.Mvvm.Vms.DtoVms;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 
 namespace AppointmentsManager.WpfApp.Services;
 

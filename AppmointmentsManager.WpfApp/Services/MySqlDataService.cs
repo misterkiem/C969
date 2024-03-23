@@ -127,7 +127,7 @@ namespace AppointmentsManager.WpfApp.Services
                 var userApts = _appointments.Where(x => x.User.userId == user.Id).ToHashSet();
                 foreach (var userApt in userApts) { userApt.User = user; }
                 user.Appointments = userApts;
-            } 
+            }
 
             InitReadOnlyCollections();
         }

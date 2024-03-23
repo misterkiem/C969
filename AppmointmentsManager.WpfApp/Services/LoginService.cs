@@ -27,7 +27,7 @@ namespace AppointmentsManager.WpfApp.Services
         {
             var line = Enumerable.Repeat($"User {LoggedInUser!.userName} successfully logged in on {DateTime.Today:d} at {DateTime.Now:t}.", 1);
             var file = Path.Combine(Environment.CurrentDirectory, "Login_History.txt");
-            File.AppendAllLines(file, line); 
+            File.AppendAllLines(file, line);
         }
     }
 }

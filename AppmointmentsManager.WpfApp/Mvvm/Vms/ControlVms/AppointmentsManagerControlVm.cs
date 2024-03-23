@@ -8,7 +8,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Windows.Data;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
@@ -94,7 +93,7 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
     {
         if (SelectedAppointment is null) return;
         SelectedAppointment.Delete();
-        _appointments.Remove(SelectedAppointment); 
+        _appointments.Remove(SelectedAppointment);
     }
 
     private bool CanDelete() => SelectedAppointment is not null;

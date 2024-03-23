@@ -1,12 +1,6 @@
-﻿using AppointmentsManager.DataAccess.Models;
-using AppointmentsManager.WpfApp.Core;
-using AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
+﻿using AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
 using AppointmentsManager.WpfApp.Services;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows.Data;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
 

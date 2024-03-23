@@ -8,7 +8,7 @@ public struct DateTimeRange
     {
         Start = start;
         End = end;
-    } 
+    }
 
     public bool IsOverlapping(DateTimeRange range)
     {
@@ -17,5 +17,5 @@ public struct DateTimeRange
         return false;
     }
 
-    public static bool IsOverlapping(DateTimeRange first, DateTimeRange second) => first.IsOverlapping(second) || second.IsOverlapping(first); 
+    public static bool IsOverlapping(DateTimeRange first, DateTimeRange second) => first.IsOverlapping(second) || second.IsOverlapping(first);
 }

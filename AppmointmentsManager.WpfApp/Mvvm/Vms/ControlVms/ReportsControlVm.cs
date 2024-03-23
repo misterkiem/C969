@@ -3,10 +3,6 @@ using AppointmentsManager.WpfApp.Core;
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Linq;
-using System.Windows.Data;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms
 {

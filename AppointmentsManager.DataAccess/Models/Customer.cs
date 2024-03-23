@@ -8,7 +8,7 @@ public class Customer : DbModel
 {
     [Key]
     [Column(TypeName = "INT(10)")]
-    public int customerId { get; set; } 
+    public int customerId { get; set; }
 
     [NotMapped]
     public override int Id => customerId;
