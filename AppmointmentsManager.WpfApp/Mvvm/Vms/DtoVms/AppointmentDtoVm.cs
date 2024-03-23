@@ -46,7 +46,7 @@ public partial class AppointmentDtoVm : DtoVmBase
 
     private void OnErrorsChanged(object? sender, DataErrorsChangedEventArgs e)
     {
-        Messenger.Send(new AppointmentErrorsChanged(this));
+        Messenger.Send(new AppointmentErrorsChangedMessage(this));
     }
 
 
@@ -172,12 +172,16 @@ public partial class AppointmentDtoVm : DtoVmBase
     public void Delete()
     {
         _appointment.User.Appointments.Remove(_appointment);
+        _appointment.Customer.Appointments.Remove(_appointment);
         DeleteFromDb();
     }
 
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
+        if (!_initialized) return;
+        if (e.PropertyName == nameof(HasErrors)) return;
+        if (e.PropertyName == nameof(IsModified)) return;
         if (_initialized && e.PropertyName != nameof(IsModified)) IsModified = true;
     }
 
@@ -189,6 +193,7 @@ public partial class AppointmentDtoVm : DtoVmBase
         _appointment.Customer = Customer;
         _appointment.User = User;
         if (!_appointment.User!.Appointments.Contains(_appointment)) _appointment.User.Appointments.Add(_appointment);
+        if (!_appointment.Customer!.Appointments.Contains(_appointment)) _appointment.Customer.Appointments.Add(_appointment);
     }
 
     private static bool CheckOpenHours(DateTime time) => GetEstTime(time).IsBetween(new(9, 0), new(17, 1));

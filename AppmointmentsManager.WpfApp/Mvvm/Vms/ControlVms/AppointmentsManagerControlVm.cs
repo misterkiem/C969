@@ -22,16 +22,21 @@ public enum AppointmentFilter
 }
 
 [ObservableRecipient]
-public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<AppointmentDateChangedMessage>, IRecipient<AppointmentErrorsChanged>
+public partial class AppointmentManagerControlVm : ControlVmBase,
+    IRecipient<AppointmentDateChangedMessage>,
+    IRecipient<AppointmentErrorsChangedMessage>,
+    IRecipient<AppointmentsDeletedMessage>
 {
     private readonly IDtoVmFactory<AppointmentDtoVm> _appointmentFac;
 
     private readonly ILoginService _login;
 
+    private readonly IDataService _data;
+
     private ObservableCollection<AppointmentDtoVm> _appointments;
 
     public AppointmentManagerControlVm(IDataService dataService,
-        IDtoVmFactory<AppointmentDtoVm> appointmentFac,
+                                IDtoVmFactory<AppointmentDtoVm> appointmentFac,
         IMessenger messenger,
         ILoginService login)
     {
@@ -53,8 +58,6 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
 
     [ObservableProperty]
     private ICollectionView? _appointmentsView;
-
-    private IDataService _data;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveAppointmentCommand))]
@@ -96,8 +99,6 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
         _appointments.Remove(SelectedAppointment);
     }
 
-    private bool CanDelete() => SelectedAppointment is not null;
-
     public void Receive(AppointmentDateChangedMessage message)
     {
         var oldDate = message.OldValue;
@@ -105,6 +106,24 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
         if (!_appointments.Any((x) => x.IsOnDate(oldDate))) AvailableDates.Remove(oldDate);
         if (!AvailableDates.Any((x) => x == newDate)) AvailableDates.Add(newDate);
     }
+
+    public void Receive(AppointmentErrorsChangedMessage message)
+    {
+        if (message.Appointment == SelectedAppointment) SaveAppointmentCommand.NotifyCanExecuteChanged();
+    }
+
+    public void Receive(AppointmentsDeletedMessage message)
+    {
+        foreach(var apt in message.Appointments)
+        {
+            var vm = _appointments.Where(x => x.DbModel == apt).FirstOrDefault(); ;
+            if (vm is null) continue;
+            _appointments.Remove(vm);
+            if (vm == SelectedAppointment) SelectedAppointment = null; 
+        }
+    }
+
+    private bool CanDelete() => SelectedAppointment is not null;
 
     partial void OnSelectedFilterChanged(AppointmentFilter value)
     {
@@ -142,10 +161,5 @@ public partial class AppointmentManagerControlVm : ControlVmBase, IRecipient<App
         if (_appointments.Any(x => x.Start < appointment.End || x.End > appointment.Start))
             return new("This appointment is overlapping with an existing appointment.");
         return ValidationResult.Success;
-    }
-
-    public void Receive(AppointmentErrorsChanged message)
-    {
-        if (message.Appointment == SelectedAppointment) SaveAppointmentCommand.NotifyCanExecuteChanged();
     }
 }

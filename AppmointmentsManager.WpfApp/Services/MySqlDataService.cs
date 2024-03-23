@@ -1,12 +1,16 @@
 ﻿using AppointmentsManager.DataAccess;
 using AppointmentsManager.DataAccess.Models;
+using AppointmentsManager.WpfApp.Mvvm.Vms.Messages;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace AppointmentsManager.WpfApp.Services
 {
-    public class MySqlDataService : IDataService
+    public class MySqlDataService : ObservableRecipient, IDataService
     {
         private readonly IDbContextFactory<AppointmentsDbContext> _dbFactory;
 
@@ -129,7 +133,27 @@ namespace AppointmentsManager.WpfApp.Services
                 user.Appointments = userApts;
             }
 
+            _customers.CollectionChanged += OnCustomersChanged;
+            _appointments.CollectionChanged += OnAppointmentsChanged;
             InitReadOnlyCollections();
+        }
+
+        private void OnCustomersChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action != NotifyCollectionChangedAction.Remove) return;
+            var removedCustomers = e.OldItems?.Cast<Customer>();
+            if (removedCustomers is null) return;
+            foreach (var apt in removedCustomers.SelectMany(x => x.Appointments))
+                _appointments.Remove(apt);
+        }
+
+        private void OnAppointmentsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action != NotifyCollectionChangedAction.Remove) return;
+            var removedApts = e.OldItems?.Cast<Appointment>();
+            if (removedApts is null) return;
+            foreach (var removedApt in removedApts) { removedApt.User.Appointments.Remove(removedApt); }
+            if (removedApts is not null) Messenger.Send(new AppointmentsDeletedMessage(removedApts));
         }
 
         private void InitReadOnlyCollections()

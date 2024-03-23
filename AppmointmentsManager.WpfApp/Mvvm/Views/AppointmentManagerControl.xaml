@@ -25,7 +25,7 @@
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    FontWeight="Bold"
-                   Margin="0,20"/>
+                   Margin="0,20" />
 
         <!--Appointment Selector Grid-->
         <StackPanel Grid.Row="1">
@@ -85,18 +85,6 @@
                   IsReadOnly="True"
                   SelectionMode="Single">
             <DataGrid.Resources>
-                <Style TargetType="TextBox">
-                    <Setter Property="Validation.ErrorTemplate"
-                            Value="{x:Null}" />
-                </Style>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Validation.ErrorTemplate"
-                            Value="{x:Null}" />
-                </Style>
-                <Style TargetType="DataGridCell">
-                    <Setter Property="Validation.ErrorTemplate"
-                            Value="{x:Null}" />
-                </Style>
                 <Style TargetType="TextBlock"
                        x:Key="UserCellChangedStyle">
                     <Setter Property="Text"
@@ -115,7 +103,8 @@
             </DataGrid.Resources>
 
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="User" CellTemplate="{StaticResource UserCellTemplate}"/>
+                <DataGridTemplateColumn Header="User"
+                                        CellTemplate="{StaticResource UserCellTemplate}" />
 
                 <DataGridTextColumn Header="Customer"
                                     Binding="{Binding Customer.customerName}" />
