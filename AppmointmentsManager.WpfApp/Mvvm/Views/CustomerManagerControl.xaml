@@ -38,7 +38,20 @@
                       ItemContainerStyle="{StaticResource ItemValidationStyle}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Name}">
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text"
+                                            Value="{Binding Name}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsModified}"
+                                                     Value="true">
+                                            <Setter Property="Text"
+                                                    Value="{Binding Name, StringFormat='{}{0}*'}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
                         <Validation.ErrorTemplate>
                             <ControlTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -47,7 +60,7 @@
                                                    Text="⚠"
                                                    FontSize="16"
                                                    VerticalAlignment="Center"
-                                                   ToolTip="This customer has no name. Please correct."/>
+                                                   ToolTip="This customer has no name. Please correct." />
                                     </StackPanel>
                             </ControlTemplate>
                         </Validation.ErrorTemplate>
@@ -61,7 +74,8 @@
                             Margin="10, 40, 10, 0"
                             FontSize="14"
                             DataContext="{Binding SelectedCustomerCard}" />
-        <Grid Grid.Row="2" Margin="10, 0">
+        <Grid Grid.Row="2"
+              Margin="10, 0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />

@@ -32,7 +32,7 @@ xxxxxxx";
         new (@"^[0-9]{7}$")
     };
 
-    //private readonly Dictionary<string, List<string>> _errors = new();
+    private bool _initialized = false;
 
     private Customer _customer = null!;
 
@@ -49,6 +49,9 @@ xxxxxxx";
 
     [ObservableProperty]
     private int _id;
+
+    [ObservableProperty]
+    private bool _isModified = false;
 
     [ObservableProperty]
     [Required]
@@ -100,7 +103,9 @@ xxxxxxx";
             _dialog.ShowMessage("This Customer has errors. Please check inputs and correct.", "Input Errors For This Customer");
             return;
         }
-        if (SaveToDb()) Id = _customer.Id;
+        if (!SaveToDb()) return;
+        Id = _customer.Id;
+        IsModified = false;
     }
 
     [RelayCommand]
@@ -119,12 +124,27 @@ xxxxxxx";
         return ValidationResult.Success;
     }
 
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        if (!_initialized) return;
+        if (e.PropertyName == nameof(IsModified)) return;
+        if (e.PropertyName == nameof(HasErrors)) return;
+        if (e.PropertyName == nameof(Cities)) return;
+        if (e.PropertyName == nameof(Countries)) return;
+        IsModified = true;
+
+    }
+
     partial void OnCityChanged(City? value) => Country = value?.Country;
 
     partial void OnCountryChanged(Country? value) { if (City is not null) City.Country = value; }
 
     public override void InitEmpty()
-        => _customer = new() { Address = new() };
+    {
+        _customer = new() { Address = new() };
+        _initialized = true;
+    }
 
     public override void LoadEntity(DbModel entity)
     {
@@ -140,6 +160,7 @@ xxxxxxx";
         City = customer.Address.City;
         Country = customer.Address.City?.Country;
         ValidateAllProperties();
+        _initialized = true;
     }
 
 
