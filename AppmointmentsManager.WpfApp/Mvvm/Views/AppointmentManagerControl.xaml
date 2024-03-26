@@ -16,6 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="AUto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -73,20 +74,40 @@
                     </local:DateBoundDatePicker.Resources>
                 </local:DateBoundDatePicker>
             </UniformGrid>
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <StackPanel.Resources>
+                    <Style TargetType="Button"
+                           BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="Margin"
+                                Value="8,0" />
+                        <Setter Property="Padding"
+                                Value="6" />
+                    </Style>
+                </StackPanel.Resources>
+                <Button Content="New Appointment"
+                        Command="{Binding NewAppointmentCommand}" />
+                <Button Content="Delete Appointment"
+                        Command="{Binding DeleteAppointmentCommand}" />
+            </StackPanel>
         </StackPanel>
-        <DataGrid Grid.Row="2"
+        <DataGrid x:Name="AppointmentsDataGrid"
+                  Grid.Row="3"
                   Margin="10"
                   ItemsSource="{Binding AppointmentsView}"
-                  SelectedItem="{Binding SelectedAppointment}"
+                  SelectedItem="{Binding SelectedAppointment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                   HorizontalAlignment="Stretch"
+                  SelectionChanged="AppointmentsDataGrid_SelectionChanged"
                   Validation.ErrorTemplate="{x:Null}"
                   ItemContainerStyle="{StaticResource ItemValidationStyle}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
+                  SelectionUnit="FullRow"
                   SelectionMode="Single">
             <DataGrid.Resources>
                 <Style TargetType="TextBlock"
-                       x:Key="UserCellChangedStyle">
+                       x:Key="UserCellChangedStyle"
+                       BasedOn="{StaticResource {x:Type TextBlock}}">
                     <Setter Property="Text"
                             Value="{Binding User.userName}" />
                     <Style.Triggers>
@@ -100,6 +121,10 @@
                 <DataTemplate x:Key="UserCellTemplate">
                     <TextBlock Style="{StaticResource UserCellChangedStyle}" />
                 </DataTemplate>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Validation.ErrorTemplate"
+                            Value="{x:Null}" />
+                </Style>
             </DataGrid.Resources>
 
             <DataGrid.Columns>
@@ -117,8 +142,7 @@
             </DataGrid.Columns>
 
         </DataGrid>
-        <ContentPresenter Grid.Row="3"
-                          Margin="10"
+        <ContentPresenter Grid.Row="4"
                           Content="{Binding SelectedAppointment}"
                           Validation.ErrorTemplate="{x:Null}">
             <ContentPresenter.Resources>
@@ -128,24 +152,5 @@
                 </DataTemplate>
             </ContentPresenter.Resources>
         </ContentPresenter>
-        <StackPanel Grid.Row="4"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Center">
-            <StackPanel.Resources>
-                <Style TargetType="Button"
-                       BasedOn="{StaticResource {x:Type Button}}">
-                    <Setter Property="Margin"
-                            Value="20,8" />
-                    <Setter Property="Padding"
-                            Value="8" />
-                </Style>
-            </StackPanel.Resources>
-            <Button Content="New Appointment"
-                    Command="{Binding AddAppointmentCommand}" />
-            <Button Content="Save Appointment"
-                    Command="{Binding SaveAppointmentCommand}" />
-            <Button Content="Delete Appointment"
-                    Command="{Binding DeleteAppointmentCommand}" />
-        </StackPanel>
     </Grid>
 </local:ControlBase>

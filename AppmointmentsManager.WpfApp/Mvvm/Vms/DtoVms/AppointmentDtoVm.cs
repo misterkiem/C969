@@ -3,6 +3,7 @@ using AppointmentsManager.WpfApp.Core;
 using AppointmentsManager.WpfApp.Mvvm.Vms.Messages;
 using AppointmentsManager.WpfApp.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -18,14 +19,16 @@ public partial class AppointmentDtoVm : DtoVmBase
     private bool _initialized = false;
 
     private Appointment _appointment = new();
+    private readonly ILoginService _login;
 
     public AppointmentDtoVm(IDataService data,
         IDialogService dialog,
-        IMessenger messenger) : base(data, dialog)
+        IMessenger messenger,
+        ILoginService login) : base(data, dialog)
     {
         Messenger = messenger;
+        _login = login;
         Overlaps.CollectionChanged += (_, _) => ValidateTimes();
-        ErrorsChanged += OnErrorsChanged;
     }
 
     partial void OnStartChanging(DateTime value) => CheckOverlaps(value, End);
@@ -43,12 +46,6 @@ public partial class AppointmentDtoVm : DtoVmBase
         CheckAppointmentDates(oldValue, newValue);
         ValidateProperty(Start, nameof(Start));
     }
-
-    private void OnErrorsChanged(object? sender, DataErrorsChangedEventArgs e)
-    {
-        Messenger.Send(new AppointmentErrorsChangedMessage(this));
-    }
-
 
     public override DbModel DbModel => _appointment;
 
@@ -85,7 +82,7 @@ public partial class AppointmentDtoVm : DtoVmBase
     [Required(ErrorMessage = "Appointment Type is required.")]
     [NotifyDataErrorInfo]
     private string? _type;
-
+ 
     public IEnumerable<DateOnly> AppointmentDates
     {
         get
@@ -98,7 +95,6 @@ public partial class AppointmentDtoVm : DtoVmBase
 
     public bool IsOnDate(DateOnly date) => DateOnly.FromDateTime(Start) == date || DateOnly.FromDateTime(End) == date;
 
-    private DateTimeRange DateTimeRange => new(Start, End);
 
     public ObservableCollection<AppointmentDtoVm> Appointments { get; set; } = new();
 
@@ -112,51 +108,28 @@ public partial class AppointmentDtoVm : DtoVmBase
 
     private ObservableCollection<AppointmentDtoVm> Overlaps { get; } = new();
 
+    public void ValidateProperties() => ValidateAllProperties();
+
+    public void CheckOverlaps() => CheckOverlaps(Start, End);
+
     public static ValidationResult? ValidateTime(object? value, ValidationContext context)
     {
         var instance = (AppointmentDtoVm)context.ObjectInstance;
         var time = (DateTime)value!;
+        if (instance.Overlaps.Count > 0)
+            return new($"Times are overlapping with another appointment for this user");
         if (!CheckOpenHours(time))
             return new($"Time is outside of bounds 9AM - 5PM Eastern Standard Time.");
         if (!CheckOpenDays(time))
             return new($"Date is outside of bounds Monday-Friday.");
         if (instance.Start > instance.End) return new("Start time is after end time.");
-        if (instance.Overlaps.Count > 0)
-            return new($"Times are overlapping with another appointment for this user");
 
         return ValidationResult.Success;
 
     }
 
-    public override void InitEmpty()
-    {
-        _appointment = new()
-        {
-            title = string.Empty,
-            description = string.Empty,
-            location = string.Empty,
-            contact = string.Empty,
-            url = string.Empty,
-        };
-        Start = DateTime.Now;
-        End = Start.AddHours(1);
-        _initialized = true;
-    }
 
-    public override void LoadEntity(DbModel entity)
-    {
-        if (entity is not Appointment appointment) return;
-        base.LoadEntity(entity);
-        _appointment = appointment;
-        Type = _appointment.type;
-        Start = _appointment.start.ToLocalTime();
-        End = _appointment.end.ToLocalTime();
-        Customer = _appointment.Customer;
-        User = _appointment.User;
-        _initialized = true;
-        ValidateAllProperties();
-    }
-
+    [RelayCommand(CanExecute = (nameof(CanSave)))]
     public void Save()
     {
         ValidateAllProperties();
@@ -166,12 +139,70 @@ public partial class AppointmentDtoVm : DtoVmBase
             return;
         }
         SaveEntity();
-        if (SaveToDb()) IsModified = false;
+        if (SaveToDb())
+        {
+            OnPropertyChanged(nameof(IsInDb));
+            IsModified = false;
+            Messenger.Send(new AppointmentSavedMessage(this));
+        }
+    }
+
+    [RelayCommand]
+    public void Cancel()
+    {
+        if (IsInDb)
+        {
+            LoadEntity(_appointment);
+            IsModified = !IsInDb;
+            return;
+        }
+        else
+        {
+            IsModified = false;
+            foreach (var apt in Overlaps.ToArray())
+            {
+                apt.RemoveOverlap(this);
+                apt.ValidateTimes();
+            }
+            Messenger.Send(new NewAppointmentDiscardedMessage(this));
+        }
+    }
+
+    public override void InitEmpty()
+    {
+        var now = DateTime.Now;
+        _appointment = new()
+        {
+            title = string.Empty,
+            description = string.Empty,
+            location = string.Empty,
+            contact = string.Empty,
+            url = string.Empty,
+            User = _login.LoggedInUser,
+            start = now,
+            end = now.AddHours(1)
+        };
+        LoadEntity(_appointment);
+        IsModified = true;
+    }
+
+    public override void LoadEntity(DbModel entity)
+    {
+        if (entity is not Appointment appointment) return;
+        base.LoadEntity(entity);
+        _appointment = appointment;
+        User = _appointment.User;
+        Type = _appointment.type;
+        Start = _appointment.start.ToLocalTime();
+        End = _appointment.end.ToLocalTime();
+        Customer = _appointment.Customer;
+        _initialized = true;
+        ValidateAllProperties();
     }
 
     public void Delete()
     {
-        _appointment.User.Appointments.Remove(_appointment);
+        _appointment.User?.Appointments.Remove(_appointment);
         _appointment.Customer.Appointments.Remove(_appointment);
         DeleteFromDb();
     }
@@ -183,6 +214,7 @@ public partial class AppointmentDtoVm : DtoVmBase
         if (e.PropertyName == nameof(HasErrors)) return;
         if (e.PropertyName == nameof(IsModified)) return;
         if (_initialized && e.PropertyName != nameof(IsModified)) IsModified = true;
+        SaveCommand.NotifyCanExecuteChanged();
     }
 
     protected override void SaveEntity()
@@ -195,6 +227,12 @@ public partial class AppointmentDtoVm : DtoVmBase
         if (!_appointment.User!.Appointments.Contains(_appointment)) _appointment.User.Appointments.Add(_appointment);
         if (!_appointment.Customer!.Appointments.Contains(_appointment)) _appointment.Customer.Appointments.Add(_appointment);
     }
+
+    private bool CanSave() => !HasErrors;
+
+    public bool IsInDb => _appointment.Id > 0;
+
+    private DateTimeRange DateTimeRange => new(Start, End);
 
     private static bool CheckOpenHours(DateTime time) => GetEstTime(time).IsBetween(new(9, 0), new(17, 1));
 

@@ -21,7 +21,8 @@
                 <Setter Property="Margin"
                         Value="10,0" />
             </Style>
-            <Style TargetType="ComboBox" BasedOn="{StaticResource ControlValidationStyle}">
+            <Style TargetType="ComboBox"
+                   BasedOn="{StaticResource ControlValidationStyle}">
                 <Setter Property="Width"
                         Value="Auto" />
                 <Setter Property="MinWidth"
@@ -59,11 +60,41 @@
                                   Margin="0,0,10,0" />
             <UniformGrid Rows="1">
                 <local:DateTimePicker Caption="Start Time:"
-                                      SelectedDateTime="{Binding Start}"/>
+                                      SelectedDateTime="{Binding Start}" />
                 <local:DateTimePicker Caption="End Time:"
-                                      SelectedDateTime="{Binding End}"/>
+                                      SelectedDateTime="{Binding End}" />
             </UniformGrid>
-
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,10,0,0">
+                <StackPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Margin"
+                                Value="10,5" />
+                        <Setter Property="Padding"
+                                Value="5" />
+                    </Style>
+                </StackPanel.Resources>
+                <Button Content="Save Changes"
+                        Command="{Binding SaveCommand}" />
+                <Button Command="{Binding CancelCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button"
+                               BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Content"
+                                    Value="Cancel Changes" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsInDb}"
+                                             Value="false">
+                                    <Setter Property="Content"
+                                            Value="Discard New Appointment" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

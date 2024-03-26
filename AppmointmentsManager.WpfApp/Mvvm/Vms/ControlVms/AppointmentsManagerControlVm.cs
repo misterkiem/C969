@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Windows.Data;
+using System.Windows.Threading;
 
 namespace AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms;
 
@@ -24,12 +25,15 @@ public enum AppointmentFilter
 [ObservableRecipient]
 public partial class AppointmentManagerControlVm : ControlVmBase,
     IRecipient<AppointmentDateChangedMessage>,
-    IRecipient<AppointmentErrorsChangedMessage>,
+    IRecipient<AppointmentSavedMessage>,
+    IRecipient<NewAppointmentDiscardedMessage>,
     IRecipient<AppointmentsDeletedMessage>
 {
     private readonly IDtoVmFactory<AppointmentDtoVm> _appointmentFac;
 
     private readonly ILoginService _login;
+
+    private readonly IDialogService _dialog;
 
     private readonly IDataService _data;
 
@@ -38,11 +42,13 @@ public partial class AppointmentManagerControlVm : ControlVmBase,
     public AppointmentManagerControlVm(IDataService dataService,
                                 IDtoVmFactory<AppointmentDtoVm> appointmentFac,
         IMessenger messenger,
-        ILoginService login)
+        ILoginService login,
+        IDialogService dialog)
     {
         _data = dataService;
         Messenger = messenger;
         _login = login;
+        _dialog = dialog;
         _appointmentFac = appointmentFac;
 
         _appointments = new(_data.Appointments.Select(x => _appointmentFac.CreateFromExisting(x)));
@@ -60,44 +66,54 @@ public partial class AppointmentManagerControlVm : ControlVmBase,
     private ICollectionView? _appointmentsView;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SaveAppointmentCommand))]
-    [NotifyCanExecuteChangedFor(nameof(DeleteAppointmentCommand))]
-    private AppointmentDtoVm? _selectedAppointment;
-
-    [ObservableProperty]
     private DateOnly? _selectedDate;
 
-    [ObservableProperty]
-    private AppointmentFilter _selectedFilter = AppointmentFilter.UserAppointments;
 
     [ObservableProperty]
     private ObservableCollection<DateOnly> _availableDates;
 
-    [RelayCommand]
-    private void AddAppointment()
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(DeleteAppointmentCommand))]
+    [NotifyCanExecuteChangedFor(nameof(NewAppointmentCommand))]
+    private AppointmentDtoVm? _selectedAppointment;
+
+    private AppointmentFilter _selectedFilter;
+
+    public AppointmentFilter SelectedFilter
     {
-        var newVm = _appointmentFac.CreateEmpty();
-        newVm.Appointments = _appointments;
-        var user = _login.LoggedInUser;
-        if (user is not null) newVm.User = user;
-        _appointments.Add(newVm);
-        SelectedAppointment = newVm;
+        get { return _selectedFilter; }
+        set
+        {
+            TryChangeFilter(_selectedFilter, value);
+        }
     }
 
-    [RelayCommand(CanExecute = nameof(CanSave))]
-    private void SaveAppointment()
+
+    [RelayCommand]
+    private void NewAppointment()
     {
-        if (SelectedAppointment is null) return;
-        SelectedAppointment.Save();
+        if (SelectedAppointment?.IsModified ?? false)
+        {
+            OnCantChangeAppointment();
+            return;
+        }
+        var newVm = _appointmentFac.CreateEmpty();
+        newVm.Appointments = _appointments;
+        _appointments.Add(newVm);
+        SelectedAppointment = newVm;
+        SelectedAppointment.CheckOverlaps();
     }
+
 
     [RelayCommand(CanExecute = nameof(CanDelete))]
     private void DeleteAppointment()
     {
+
         if (SelectedAppointment is null) return;
         SelectedAppointment.Delete();
         _appointments.Remove(SelectedAppointment);
     }
+    private bool CanDelete() => SelectedAppointment?.DbModel.Id > 0;
 
     public void Receive(AppointmentDateChangedMessage message)
     {
@@ -105,33 +121,52 @@ public partial class AppointmentManagerControlVm : ControlVmBase,
         var newDate = message.NewValue;
         if (!_appointments.Any((x) => x.IsOnDate(oldDate))) AvailableDates.Remove(oldDate);
         if (!AvailableDates.Any((x) => x == newDate)) AvailableDates.Add(newDate);
-    }
+    } 
 
-    public void Receive(AppointmentErrorsChangedMessage message)
+    public void Receive(AppointmentSavedMessage message)
     {
-        if (message.Appointment == SelectedAppointment) SaveAppointmentCommand.NotifyCanExecuteChanged();
+        DeleteAppointmentCommand.NotifyCanExecuteChanged();
+    }
+    public void Receive(NewAppointmentDiscardedMessage message)
+    {
+        _appointments.Remove(message.Appointment);
     }
 
     public void Receive(AppointmentsDeletedMessage message)
     {
-        foreach(var apt in message.Appointments)
+        foreach (var apt in message.Appointments)
         {
             var vm = _appointments.Where(x => x.DbModel == apt).FirstOrDefault(); ;
             if (vm is null) continue;
             _appointments.Remove(vm);
-            if (vm == SelectedAppointment) SelectedAppointment = null; 
+            if (vm == SelectedAppointment) SelectedAppointment = null;
         }
     }
 
-    private bool CanDelete() => SelectedAppointment is not null;
 
-    partial void OnSelectedFilterChanged(AppointmentFilter value)
+    void TryChangeFilter(AppointmentFilter oldValue, AppointmentFilter newValue)
     {
+        if (SelectedAppointment?.IsModified ?? false)
+        {
+            OnCantChangeAppointment();
+            return;
+        }
         SelectedAppointment = null;
+        _selectedFilter = newValue;
+        OnPropertyChanged(nameof(SelectedFilter));
         AppointmentsView?.Refresh();
     }
 
     partial void OnSelectedDateChanged(DateOnly? value) => AppointmentsView?.Refresh();
+
+    partial void OnSelectedAppointmentChanged(AppointmentDtoVm? oldValue, AppointmentDtoVm? newValue)
+    {
+        if (CheckForAppointmentChange(oldValue)) return;
+        oldValue!.ValidateProperties();
+        Dispatcher.CurrentDispatcher.BeginInvoke(() => SelectedAppointment = oldValue);
+    }
+
+    public AppointmentDtoVm? old_value;
 
     private bool FilterAppointment(AppointmentDtoVm appointment)
     {
@@ -154,7 +189,18 @@ public partial class AppointmentManagerControlVm : ControlVmBase,
         }
     }
 
-    private bool CanSave() => !SelectedAppointment?.HasErrors ?? false;
+    private bool CheckForAppointmentChange(AppointmentDtoVm? appointment)
+    {
+        if (appointment is null) return true;
+        if (!appointment.IsModified) return true;
+        OnCantChangeAppointment();
+        return false;
+    }
+    private void OnCantChangeAppointment()
+    {
+        _dialog.ShowMessage("Current appointment has unsaved changes. Save or cancel changes before selecting or adding new appointments.",
+            "Must Finalize Appointment");
+    }
 
     private ValidationResult? CheckAppointment(AppointmentDtoVm appointment)
     {
@@ -162,4 +208,5 @@ public partial class AppointmentManagerControlVm : ControlVmBase,
             return new("This appointment is overlapping with an existing appointment.");
         return ValidationResult.Success;
     }
+
 }
