@@ -8,12 +8,39 @@ namespace AppointmentsManager.WpfApp.Mvvm.Vms.WindowVms;
 
 public partial class LoginWindowVm : WindowVmBase
 {
+    private static readonly HashSet<string> _spanishRegions = new()
+    {
+        "AR", // Argentina
+        "BO", // Bolivia
+        "CL", // Chile
+        "CO", // Colombia
+        "CR", // Costa Rica
+        "CU", // Cuba
+        "DO", // Dominican Republic
+        "EC", // Ecuador
+        "SV", // El Salvador
+        "GQ", // Equatorial Guinea
+        "GT", // Guatemala
+        "HN", // Honduras
+        "MX", // Mexico
+        "NI", // Nicaragua
+        "PA", // Panama
+        "PY", // Paraguay
+        "PR", // Puerto Rico
+        "PE", // Peru
+        "ES", // Spain
+        "UY", // Uruguay
+        "VE"  // Venezuela
+    };
+
+
     private readonly IDataService _data = null!;
-
     private readonly INavService _windowManager = null!;
-
     private readonly ILoginService _login = null!;
     private readonly IDialogService _dialog;
+    private RegionInfo _region = RegionInfo.CurrentRegion;
+
+
 
     [Obsolete("Design Time Only", true)]
     public LoginWindowVm() { }
@@ -24,34 +51,37 @@ public partial class LoginWindowVm : WindowVmBase
         _windowManager = WindowManager;
         _login = login;
         _dialog = dialog;
-        if (NotEnglish) ChangeToSpanish();
+
+        if (_spanishRegions.Contains(_region.TwoLetterISORegionName)) InitSpanish();
+        else InitEnglish();
     }
 
     [ObservableProperty]
-    private string? username;
+    private string? _username;
 
     [ObservableProperty]
-    private string? password;
+    private string? _password;
 
     [ObservableProperty]
-    private string usernameLabel = "Username";
+    private string _usernameLabel = "Username";
 
     [ObservableProperty]
-    private string passwordLabel = "Password";
+    private string _passwordLabel = "Password";
 
     [ObservableProperty]
-    private string message = "Please enter your username and password.";
+    private string _message = "Please enter your username and password.";
 
     [ObservableProperty]
-    private string loginText = "Login";
+    private string _regionMessage;
 
     [ObservableProperty]
-    private string loginErrorText = "Invalid username and password combination.";
+    private string _loginText = "Login";
 
     [ObservableProperty]
-    private bool invalidLogin = false;
+    private string _loginErrorText = "Invalid username and password combination.";
 
-    bool NotEnglish => CultureInfo.CurrentCulture.TwoLetterISOLanguageName != "en";
+    [ObservableProperty]
+    private bool _invalidLogin = false;
 
     [RelayCommand]
     void Login()
@@ -68,12 +98,23 @@ public partial class LoginWindowVm : WindowVmBase
         CloseAction?.Invoke();
     }
 
-    void ChangeToSpanish()
+    void InitEnglish()
+    {
+        UsernameLabel = "Username";
+        PasswordLabel = "Password";
+        Message = "Please enter your username and password";
+        LoginErrorText = "Invalid username and password combination.";
+        LoginText = "Login";
+        RegionMessage = $"Your Region: {_region.DisplayName}";
+    }
+
+    void InitSpanish()
     {
         UsernameLabel = "Nombre de usuario";
         PasswordLabel = "Contraseña";
         Message = "Porfavor introduzca su nombre de usuario y contraseña";
         LoginErrorText = "Combinación de nombre de usuario y contraseña no válida.";
         LoginText = "Acceso";
+        RegionMessage = $"Tu región: {_region.DisplayName}";
     }
 }
