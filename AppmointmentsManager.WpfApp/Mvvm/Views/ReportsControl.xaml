@@ -16,9 +16,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.Resources>
             <Style TargetType="TextBlock">
@@ -83,35 +82,8 @@
                        Height="Auto" />
         </Grid>
 
-        <!--User Schedule Report-->
-        <StackPanel Orientation="Horizontal"
-                    Grid.Row="3">
-            <TextBlock Text="User Schedule Report: "
-                       Style="{StaticResource H2Style}" />
-            <ComboBox MinWidth="80"
-                      VerticalContentAlignment="Center"
-                      HorizontalContentAlignment="Left"
-                      Margin="8"
-                      FontSize="12"
-                      ItemsSource="{Binding Users}"
-                      SelectedItem="{Binding ScheduleUser}"
-                      DisplayMemberPath="userName" />
-        </StackPanel>
-        <ScrollViewer Grid.Row="4"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Auto"
-                      Margin="20">
-            <ItemsControl ItemsSource="{Binding UserAppointments}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="mod:Appointment">
-                        <local:ReadOnlyAppointmentCard />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-
         <!--Custom Report-->
-        <Grid Grid.Row="5">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
@@ -137,6 +109,33 @@
                        TextWrapping="Wrap">
             </TextBlock>
         </Grid>
+
+        <!--User Schedule Report-->
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="4">
+            <TextBlock Text="User Schedule Report: "
+                       Style="{StaticResource H2Style}" />
+            <ComboBox MinWidth="80"
+                      VerticalContentAlignment="Center"
+                      HorizontalContentAlignment="Left"
+                      Margin="8"
+                      FontSize="12"
+                      ItemsSource="{Binding Users}"
+                      SelectedItem="{Binding ScheduleUser}"
+                      DisplayMemberPath="userName" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="5"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Auto"
+                      Margin="20">
+            <ItemsControl ItemsSource="{Binding UserAppointments}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="mod:Appointment">
+                        <local:ReadOnlyAppointmentCard />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
 
     </Grid>
 </local:ControlBase>
