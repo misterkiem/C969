@@ -95,7 +95,7 @@
             <ComboBox Grid.Column="1"
                       MinWidth="100"
                       ItemsSource="{Binding Users}"
-                      SelectedItem="{Binding YearUser}"
+                      SelectedItem="{Binding SelectedUser}"
                       DisplayMemberPath="userName"
                       ItemStringFormat="d4" />
             <ComboBox Grid.Column="2"
@@ -115,23 +115,15 @@
                     Grid.Row="4">
             <TextBlock Text="User Schedule Report: "
                        Style="{StaticResource H2Style}" />
-            <ComboBox MinWidth="80"
-                      VerticalContentAlignment="Center"
-                      HorizontalContentAlignment="Left"
-                      Margin="8"
-                      FontSize="12"
-                      ItemsSource="{Binding Users}"
-                      SelectedItem="{Binding ScheduleUser}"
-                      DisplayMemberPath="userName" />
         </StackPanel>
         <ScrollViewer Grid.Row="5"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Auto"
                       Margin="20">
-            <ItemsControl ItemsSource="{Binding UserAppointments}">
+            <ItemsControl ItemsSource="{Binding Users}">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="mod:Appointment">
-                        <local:ReadOnlyAppointmentCard />
+                    <DataTemplate DataType="mod:User">
+                        <local:UserScheduleCard />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

@@ -25,14 +25,10 @@ namespace AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms
         private string? _selectedType;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(UserAppointments))]
-        private User? _scheduleUser;
-
-        [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(UserYearReport))]
-        private User? _yearUser;
+        private User? _selectedUser;
 
-        public IEnumerable<Appointment>? UserAppointments => ScheduleUser?.Appointments.OrderBy(a => a.start);
+        public IEnumerable<Appointment>? UserAppointments => SelectedUser?.Appointments.OrderBy(a => a.start);
 
         public IEnumerable<int> Years => GetYears(_appointments);
 
@@ -89,11 +85,12 @@ namespace AppointmentsManager.WpfApp.Mvvm.Vms.ControlVms
 
         private string? GetUserYearReport()
         {
-            if (SelectedYear is null || YearUser is null) return null;
-            var count = _appointments.Count(a => a.start.ToLocalTime().Year == SelectedYear
-                || a.end.ToLocalTime().Year == SelectedYear);
+            if (SelectedYear is null || SelectedUser is null) return null;
+            var count = UserAppointments?.Count(a => 
+                a.start.ToLocalTime().Year == SelectedYear ||
+                a.end.ToLocalTime().Year == SelectedYear);
             var hasHad = SelectedYear == DateTime.Now.Year ? "has" : "had";
-            return $"The user {YearUser.userName} {hasHad} {count} appointments in the year {SelectedYear:d4}";
+            return $"The user {SelectedUser.userName} {hasHad} {count} appointments in the year {SelectedYear:d4}";
         }
     }
 }
